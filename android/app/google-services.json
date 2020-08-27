@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "515548453645",
+    "firebase_url": "https://gaf-gaff.firebaseio.com",
+    "project_id": "gaf-gaff",
+    "storage_bucket": "gaf-gaff.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:515548453645:android:d23c7f8560415c772eae44",
+        "android_client_info": {
+          "package_name": "com.edeal.gafgaff"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "515548453645-rosg9e3tr8197g8s2h5683dr2un0ikt5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.edeal.gafgaff",
+            "certificate_hash": "d64c04aad239069543b03d4b3a4414deae6e7d22"
+          }
+        },
+        {
+          "client_id": "515548453645-1juu1ccu6smppn1ei0t9r74d2ddud7ic.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGdFRqqczXtsdjQuL2Az7vyuMexJGqB7w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "515548453645-1juu1ccu6smppn1ei0t9r74d2ddud7ic.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
