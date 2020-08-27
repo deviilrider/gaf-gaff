@@ -1,7 +1,11 @@
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gafgaff/Constants/colors.dart';
+import 'package:gafgaff/Views/AuthScreens/login.dart';
+import 'package:gafgaff/Widgets/dialogs.dart';
+import 'package:numeric_keyboard/numeric_keyboard.dart';
 
 import 'updateInfo.dart';
 
@@ -16,6 +20,16 @@ class VerifyPhoneView extends StatefulWidget {
 class _VerifyPhoneViewState extends State<VerifyPhoneView> {
   bool resend = false;
   final _formKey = GlobalKey<FormState>();
+
+  String text = '';
+  String error = "";
+
+  void _onKeyboardTap(String value) {
+    setState(() {
+      text = text + value;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -31,7 +45,7 @@ class _VerifyPhoneViewState extends State<VerifyPhoneView> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.01),
               Image(
                 image: AssetImage("assets/images/gaf-gaff.png"),
                 height: 80,
@@ -41,17 +55,30 @@ class _VerifyPhoneViewState extends State<VerifyPhoneView> {
             ],
           ),
         ),
+        bottomNavigationBar: BottomAppBar(
+          elevation: 0,
+          child: Container(
+            height: 40,
+            child: Column(
+              children: [
+                Text(
+                  'powered by',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                Text(
+                  'E. Deal Nepal',
+                  style:
+                      TextStyle(fontWeight: FontWeight.w600, color: maincolor3),
+                )
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
   formWidget(BuildContext context) {
-    TextEditingController code1 = TextEditingController();
-    TextEditingController code2 = TextEditingController();
-    TextEditingController code3 = TextEditingController();
-    TextEditingController code4 = TextEditingController();
-    TextEditingController code5 = TextEditingController();
-    TextEditingController code6 = TextEditingController();
     return Form(
         key: _formKey,
         child: Column(
@@ -64,47 +91,105 @@ class _VerifyPhoneViewState extends State<VerifyPhoneView> {
               ),
             ),
             resend
-                ? FlatButton(onPressed: () {}, child: Text('Resend'))
+                ? FlatButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => LoginView()));
+                    },
+                    child: Text('Resend'))
                 : Container(),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                codeField(code1),
-                codeField(code2),
-                codeField(code3),
-                codeField(code4),
-                codeField(code5),
-                codeField(code6),
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                otpNumberWidget(0),
+                otpNumberWidget(1),
+                otpNumberWidget(2),
+                otpNumberWidget(3),
+                otpNumberWidget(4),
+                otpNumberWidget(5),
               ],
             ),
+            SizedBox(
+              height: 10,
+            ),
+            Text(
+              error,
+              style: TextStyle(color: Colors.red, fontSize: 10),
+            ),
             RaisedButton(
+              elevation: 10,
+              color: maincolor3,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30)),
               onPressed: () {
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => UpdateInfoView()));
+                if (text != "") {
+                  if (text.length == 6) {
+                    print(text);
+                    Dialogs()..getDialog(context);
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => UpdateInfoView()));
+                  } else if (text.length < 6) {
+                    setState(() {
+                      error = '* Please enter 6 digits code';
+                    });
+                  } else {
+                    setState(() {
+                      error = '* Please enter only 6 digits code';
+                    });
+                  }
+                } else {
+                  print('error');
+                  setState(() {
+                    error = '* Please enter code for verification';
+                  });
+                }
               },
-              child: Text('Verify Phone Number'),
+              child:
+                  Text('Verify Phone Number', style: TextStyle(fontSize: 15)),
+            ),
+            NumericKeyboard(
+              onKeyboardTap: _onKeyboardTap,
+              textColor: maincolor1,
+              rightIcon: Icon(
+                Icons.backspace,
+                color: maincolor2,
+              ),
+              rightButtonFn: () {
+                setState(() {
+                  text = text.substring(0, text.length - 1);
+                });
+              },
             )
           ],
         ));
   }
 
-  codeField(TextEditingController controller) {
-    return Container(
-      margin: EdgeInsets.only(left: 10, right: 10),
-      height: 40,
-      width: 30,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-              color: maincolor2, width: 1, style: BorderStyle.solid)),
-      child: TextFormField(
-        controller: controller,
-        maxLength: 1,
-        decoration: InputDecoration(
-          focusedBorder: OutlineInputBorder(borderSide: BorderSide.none),
-          enabledBorder: OutlineInputBorder(borderSide: BorderSide.none),
-        ),
-      ),
-    );
+  Widget otpNumberWidget(int position) {
+    try {
+      return Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+            border: Border.all(color: Colors.black, width: 0),
+            borderRadius: const BorderRadius.all(Radius.circular(8))),
+        child: Center(
+            child: Text(
+          text[position],
+          textScaleFactor: 1.2,
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        )),
+      );
+    } catch (e) {
+      return Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+            border: Border.all(color: Colors.black, width: 0),
+            borderRadius: const BorderRadius.all(Radius.circular(8))),
+      );
+    }
   }
 }

@@ -30,6 +30,7 @@ dependencies:
   provider: ^4.3.2+1
   firebase_auth: ^0.18.0+1
   pin_code_fields: ^5.0.1
+  numeric_keyboard: ^1.0.0
 
 dev_dependencies:
   flutter_test:

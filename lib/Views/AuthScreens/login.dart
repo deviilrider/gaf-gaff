@@ -29,6 +29,25 @@ class _LoginViewState extends State<LoginView> {
             ],
           ),
         ),
+        bottomNavigationBar: BottomAppBar(
+          elevation: 0,
+          child: Container(
+            height: 40,
+            child: Column(
+              children: [
+                Text(
+                  'powered by',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                Text(
+                  'E. Deal Nepal',
+                  style:
+                      TextStyle(fontWeight: FontWeight.w600, color: maincolor3),
+                )
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -91,6 +110,7 @@ class _LoginViewState extends State<LoginView> {
                     backgroundColor: maincolor3,
                     child: Icon(
                       Icons.arrow_forward,
+                      color: Colors.white,
                       size: 35,
                     ),
                   ),
