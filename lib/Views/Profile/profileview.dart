@@ -14,20 +14,32 @@ class ProfileView extends StatelessWidget {
         child: Column(
           children: [
             //appbar
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: Container(
-                padding: EdgeInsets.only(left: 15, top: 10),
-                alignment: Alignment.centerLeft,
-                height: 40,
-                child: Icon(
-                  Icons.arrow_back_ios,
-                  size: 30,
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Card(
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50)),
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(50)),
+                      child: Icon(
+                        Icons.arrow_back_ios,
+                        size: 25,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
+
             SizedBox(
               height: 30,
             ),
@@ -51,27 +63,27 @@ class ProfileView extends StatelessWidget {
               '+977 9851255497',
               style: TextStyle(fontStyle: FontStyle.normal, fontSize: 12),
             ),
-            SettingListView()
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        elevation: 0,
-        child: Container(
-          height: 40,
-          child: Column(
-            children: [
-              Text(
-                'powered by',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+            SettingListView(),
+            Divider(),
+            ListTile(
+              title: Container(
+                height: 40,
+                child: Column(
+                  children: [
+                    Text(
+                      'powered by',
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    Text(
+                      'E. Deal Nepal',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600, color: maincolor3),
+                    )
+                  ],
+                ),
               ),
-              Text(
-                'E. Deal Nepal',
-                style:
-                    TextStyle(fontWeight: FontWeight.w600, color: maincolor3),
-              )
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     ));

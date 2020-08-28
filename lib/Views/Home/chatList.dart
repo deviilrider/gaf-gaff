@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gafgaff/Constants/list.dart';
+import 'package:gafgaff/Constants/constants.dart';
 import 'package:gafgaff/Views/Home/chatView.dart';
 
 class ChatListView extends StatelessWidget {
@@ -9,6 +9,7 @@ class ChatListView extends StatelessWidget {
       margin: EdgeInsets.only(left: 16, right: 16, top: 8),
       child: ListView.builder(
         shrinkWrap: true,
+        scrollDirection: Axis.vertical,
         itemBuilder: (context, index) {
           return ListTile(
             onTap: () {
@@ -26,8 +27,7 @@ class ChatListView extends StatelessWidget {
                     color: Color.fromRGBO(51, 51, 51, 1),
                   ),
                   child: ClipOval(
-                    child: Image.asset(
-                        "assets/profile-pics/${profilePics[index]}"),
+                    child: Image.network(sampleImageUrl),
                   ),
                 ),
                 Positioned(
@@ -51,7 +51,7 @@ class ChatListView extends StatelessWidget {
                 style: TextStyle(
                     fontFamily: "Roboto",
                     fontWeight: FontWeight.w500,
-                    color: Colors.white),
+                    color: Colors.black),
               ),
             ),
             subtitle: Text(
@@ -70,7 +70,7 @@ class ChatListView extends StatelessWidget {
             ),
           );
         },
-        itemCount: 5,
+        itemCount: 10,
       ),
     );
   }

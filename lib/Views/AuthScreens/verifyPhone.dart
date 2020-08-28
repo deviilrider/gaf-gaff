@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:gafgaff/Connections/auth.dart';
 import 'package:gafgaff/Constants/colors.dart';
 import 'package:gafgaff/Views/AuthScreens/login.dart';
 import 'package:gafgaff/Widgets/dialogs.dart';
@@ -11,8 +12,14 @@ import 'updateInfo.dart';
 
 class VerifyPhoneView extends StatefulWidget {
   final String number;
+  final String verId;
 
-  const VerifyPhoneView({Key key, this.number}) : super(key: key);
+  const VerifyPhoneView({
+    Key key,
+    this.number,
+    this.verId,
+  }) : super(key: key);
+
   @override
   _VerifyPhoneViewState createState() => _VerifyPhoneViewState();
 }
@@ -86,7 +93,7 @@ class _VerifyPhoneViewState extends State<VerifyPhoneView> {
             Padding(
               padding: const EdgeInsets.all(30.0),
               child: Text(
-                'Enter 6 digits validation code that is sent to +977-${widget.number} .',
+                'Enter 6 digits validation code that is sent to ${widget.number} .',
                 textAlign: TextAlign.center,
               ),
             ),
@@ -127,10 +134,8 @@ class _VerifyPhoneViewState extends State<VerifyPhoneView> {
                   if (text.length == 6) {
                     print(text);
                     Dialogs()..getDialog(context);
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => UpdateInfoView()));
+                    AuthServices().signInwithPhone(
+                        widget.number, widget.verId, text, context);
                   } else if (text.length < 6) {
                     setState(() {
                       error = '* Please enter 6 digits code';

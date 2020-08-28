@@ -7,44 +7,40 @@ class Dialogs {
   Future<void> getDialog(BuildContext context) async {
     return showDialog(
       context: context,
-      child: WillPopScope(
-        child: SimpleDialog(
-          // useMaterialBorderRadius: true,
-          key: keyContext,
-          backgroundColor: Colors.white,
-          children: [
-            Center(
-              child:
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: <Widget>[
-                    Platform.isIOS
-                        ? CupertinoActivityIndicator(
-                            radius: 35,
-                          )
-                        : CircularProgressIndicator(
-                            strokeWidth: 2,
-                          ),
-                    Image.asset(
-                      'assets/images/gaf-gaff.png',
-                      height: 30,
-                      width: 30,
-                    )
-                  ],
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  "Please Wait....",
-                  style: TextStyle(color: Colors.blueAccent),
-                )
-              ]),
-            ),
-          ],
-        ),
-        onWillPop: () async => false,
+      child: SimpleDialog(
+        // useMaterialBorderRadius: true,
+        key: keyContext,
+        backgroundColor: Colors.white,
+        children: [
+          Center(
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Stack(
+                alignment: Alignment.center,
+                children: <Widget>[
+                  Platform.isIOS
+                      ? CupertinoActivityIndicator(
+                          radius: 35,
+                        )
+                      : CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
+                  Image.asset(
+                    'assets/images/gaf-gaff.png',
+                    height: 30,
+                    width: 30,
+                  )
+                ],
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                "Please Wait....",
+                style: TextStyle(color: Colors.blueAccent),
+              )
+            ]),
+          ),
+        ],
       ),
     );
   }

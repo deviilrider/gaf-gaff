@@ -1,17 +1,18 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:gafgaff/Constants/colors.dart';
-import 'package:gafgaff/Views/AuthScreens/verifyPhone.dart';
-import 'package:gafgaff/Widgets/textfield.dart';
+import 'package:gafgaff/Connections/auth.dart';
+import 'package:gafgaff/Views/AuthScreens/updateInfo.dart';
+import '../../Constants/colors.dart';
+import '../../Widgets/textfield.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class LoginView extends StatefulWidget {
-  @override
-  _LoginViewState createState() => _LoginViewState();
-}
+import 'verifyPhone.dart';
 
-class _LoginViewState extends State<LoginView> {
-  String error;
+class LoginView extends StatelessWidget {
+  TextEditingController phoneNumberController = TextEditingController();
+  String verificationId;
+
   final _formKey = GlobalKey<FormState>();
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -25,7 +26,7 @@ class _LoginViewState extends State<LoginView> {
                 height: 80,
                 width: 80,
               ),
-              formWidget(context)
+              formWidget(context),
             ],
           ),
         ),
@@ -52,8 +53,7 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  formWidget(BuildContext context) {
-    TextEditingController phoneNumberController = TextEditingController();
+  Widget formWidget(BuildContext context) {
     return Form(
         key: _formKey,
         child: Column(
@@ -89,15 +89,19 @@ class _LoginViewState extends State<LoginView> {
               height: 30,
             ),
             GestureDetector(
-              onTap: () {
-                if (_formKey.currentState.validate()) {
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => VerifyPhoneView(
-                                number: phoneNumberController.text,
-                              )));
-                }
+              onTap: () async {
+                var phone = "+977 " + phoneNumberController.text;
+                AuthServices().createUserWithPhone(phone, context);
+                // verifyPhone(phoneNumberController.text, context);
+
+                // if (_formKey.currentState.validate()) {
+                // Navigator.pushReplacement(
+                //     context,
+                //     MaterialPageRoute(
+                //         builder: (context) => VerifyPhoneView(
+                //             // number: phoneNumberController.text,
+                //             )));
+                // }
               },
               child: Card(
                 elevation: 5,
@@ -116,8 +120,53 @@ class _LoginViewState extends State<LoginView> {
                   ),
                 ),
               ),
-            ),
+            )
           ],
         ));
   }
+
+  // Future<void> verifyPhone(String phoneNo, BuildContext context) async {
+  //   var phoneNumber = '+977 ' + phoneNo;
+  //   final PhoneVerificationCompleted verificationCompleted =
+  //       (AuthCredential authResult) {
+  //     print(phoneNumber);
+  //     FirebaseAuth.instance.signInWithCredential(authResult).then((value) {
+  //       Navigator.pushReplacement(
+  //           context,
+  //           MaterialPageRoute(
+  //               builder: (context) => UpdateInfoView(uid: value.user.uid)));
+  //     });
+  //   };
+
+  //   final PhoneVerificationFailed verificationFailed =
+  //       (FirebaseAuthException authException) {
+  //     print('${authException.message}');
+  //   };
+
+  //   final PhoneCodeSent codeSent = (String verId, [int forceResend]) {
+  //     this.verificationId = verId;
+  //     print(phoneNumber);
+  //     if (verId != null) {
+  //       Navigator.pushReplacement(
+  //           context,
+  //           MaterialPageRoute(
+  //               builder: (context) => VerifyPhoneView(
+  //                     number: phoneNumber,
+  //                     verId: this.verificationId,
+  //                   )));
+  //     }
+  //   };
+
+  //   final PhoneCodeAutoRetrievalTimeout autoRetrievalTimeout = (String verId) {
+  //     this.verificationId = verId;
+  //   };
+
+  //   await FirebaseAuth.instance.verifyPhoneNumber(
+  //       phoneNumber: phoneNumber,
+  //       verificationCompleted: verificationCompleted,
+  //       verificationFailed: verificationFailed,
+  //       timeout: Duration(seconds: 60),
+  //       codeSent: codeSent,
+  //       codeAutoRetrievalTimeout: autoRetrievalTimeout);
+  // }
 }
