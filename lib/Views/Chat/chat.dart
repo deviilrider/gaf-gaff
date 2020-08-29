@@ -6,19 +6,28 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gafgaff/Connections/repo.dart';
 import 'package:gafgaff/Constants/colors.dart';
-import 'package:gafgaff/Views/Profile/profileview.dart';
+import 'package:gafgaff/Models/fcm.dart';
+import 'package:gafgaff/StateManagement/messageState.dart';
+import 'package:gafgaff/Views/Profile/publicProfileView.dart';
 import 'package:gafgaff/Widgets/dialogs.dart';
 import 'package:gafgaff/Widgets/loader.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Chat extends StatelessWidget {
+class ChatExtendedView extends StatelessWidget {
   final String peerId;
   final String peerAvatar;
+  final String peerName;
 
-  Chat({Key key, @required this.peerId, @required this.peerAvatar})
+  ChatExtendedView(
+      {Key key,
+      @required this.peerId,
+      @required this.peerAvatar,
+      @required this.peerName})
       : super(key: key);
 
   @override
@@ -30,8 +39,14 @@ class Chat extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ProfileView()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PublicProfileView(
+                              peerId: peerId,
+                              peerName: peerName,
+                              peerAvatar: peerAvatar,
+                            )));
               },
               child: Card(
                 elevation: 6,
@@ -42,12 +57,19 @@ class Chat extends StatelessWidget {
                   decoration: BoxDecoration(
                       color: Colors.grey.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(50)),
-                  child: Image.asset(
-                    "assets/images/gaf-gaff.png",
-                    height: 20,
-                    width: 20,
-                    fit: BoxFit.fill,
-                  ),
+                  child: peerAvatar != null
+                      ? Image.network(
+                          peerAvatar,
+                          height: 20,
+                          width: 20,
+                          fit: BoxFit.fill,
+                        )
+                      : Image.asset(
+                          "assets/images/gaf-gaff.png",
+                          height: 20,
+                          width: 20,
+                          fit: BoxFit.fill,
+                        ),
                 ),
               ),
             ),
@@ -55,7 +77,7 @@ class Chat extends StatelessWidget {
               width: 6,
             ),
             Text(
-              'Name User',
+              peerName != null ? peerName : "",
               style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 22,
@@ -71,8 +93,14 @@ class Chat extends StatelessWidget {
                 color: Colors.blue,
               ),
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ProfileView()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PublicProfileView(
+                              peerId: peerId,
+                              peerName: peerName,
+                              peerAvatar: peerAvatar,
+                            )));
               })
         ],
       ),
@@ -118,6 +146,14 @@ class ChatScreenState extends State<ChatScreen> {
   final ScrollController listScrollController = ScrollController();
   final FocusNode focusNode = FocusNode();
 
+  final _repository = Repository();
+  String receiverPhotoUrl, senderPhotoUrl, receiverName, senderName, _senderuid;
+  bool pushnotifi = true;
+  FirebaseFirestore _firestore;
+
+  bool isFollowed = true;
+  bool isFollowing = true;
+
   _scrollListener() {
     if (listScrollController.offset >=
             listScrollController.position.maxScrollExtent &&
@@ -137,6 +173,96 @@ class ChatScreenState extends State<ChatScreen> {
       });
     }
   }
+
+  void fectchUserDetails() {
+    _repository.getCurrentUser().then((user) async {
+      setState(() {
+        _senderuid = user.uid; // * CURRENT USER-ID
+      });
+      // * current user detail
+      _repository.fetchUserDetailsById(_senderuid).then((user) {
+        setState(() {
+          senderPhotoUrl = user.photoUrl;
+          senderName = user.displayName;
+          pushnotifi = user.pushnotification;
+        });
+      });
+
+      //* receiver user detail
+      _repository.fetchUserDetailsById(widget.peerId).then((user) {
+        setState(() {
+          receiverPhotoUrl = user.photoUrl;
+          receiverName = user.displayName;
+        });
+      });
+
+      // * CHECKING IF ANY UNREAD MESSAGE TO READ MESSAGE
+      _repository.changeUnreadMessage(user, widget.peerId).then((value) {
+        // fetchUnreadMessageTotal();
+      });
+
+      QuerySnapshot following = await _firestore
+          .collection("users")
+          .doc(user.uid)
+          .collection("requested")
+          .where("uid", isEqualTo: widget.peerId)
+          .get();
+
+      QuerySnapshot follower = await _firestore
+          .collection("users")
+          .doc(user.uid)
+          .collection("incomeRequest")
+          .where("uid", isEqualTo: widget.peerId)
+          .get();
+
+      setState(() {
+        isFollowed = follower.docs.length > 0
+            ? true
+            : false; // * kosai le malai follow gareko
+        isFollowing = following.docs.length > 0
+            ? true
+            : false; // * maile kosai lai follow gareko
+      });
+    });
+  }
+
+  // fetchUnreadMessageTotal() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String useruid = prefs.getString('uid');
+  //   final messageState = Provider.of<MessageState>(context);
+  //   int tmpUnSeenCount = 0;
+  //   int tmpSeenCount = 0;
+  //   QuerySnapshot _chat;
+  //   QuerySnapshot _messgae = await _firestore
+  //       .collection("users")
+  //       .doc(useruid)
+  //       .collection("message")
+  //       .get();
+
+  //   for (int i = 0; i < _messgae.docs.length; i++) {
+  //     _chat = await _firestore
+  //         .collection("message")
+  //         .doc(useruid)
+  //         .collection(_messgae.docs[i].id)
+  //         .orderBy("timestamp", descending: true)
+  //         .get();
+  //   }
+
+  //   for (int i = 0; i < _chat.docs.length; i++) {
+  //     if (_chat.docs[i].data()["status"] == "unread") {
+  //       setState(() {
+  //         tmpUnSeenCount += 1;
+  //       });
+  //     } else {
+  //       setState(() {
+  //         tmpSeenCount += 1;
+  //       });
+  //     }
+  //   }
+  //   messageState.setTotalUnseenMessage(tmpUnSeenCount);
+  //   print("total unseen message: ${messageState.totalMessage}");
+  //   print("total seen message: $tmpSeenCount");
+  // }
 
   @override
   void initState() {
@@ -164,19 +290,10 @@ class ChatScreenState extends State<ChatScreen> {
 
   readLocal() async {
     prefs = await SharedPreferences.getInstance();
-    id = prefs.getString('id') ?? '';
-    if (id.hashCode <= peerId.hashCode) {
-      groupChatId = '$id-$peerId';
-    } else {
-      groupChatId = '$peerId-$id';
-    }
 
-    FirebaseFirestore.instance
-        .collection('users')
-        .doc(id)
-        .update({'chattingWith': peerId});
-
-    setState(() {});
+    setState(() {
+      id = prefs.getString('uid') ?? '';
+    });
   }
 
   Future getImage() async {
@@ -226,10 +343,34 @@ class ChatScreenState extends State<ChatScreen> {
     if (content.trim() != '') {
       textEditingController.clear();
 
+      FirebaseFirestore.instance
+          .collection("users")
+          .doc(id)
+          .collection("message")
+          .doc(peerId)
+          .set({'recId': peerId, 'sendId': id});
+
       var documentReference = FirebaseFirestore.instance
-          .collection('messages')
-          .doc(groupChatId)
-          .collection(groupChatId)
+          .collection("users")
+          .doc(id)
+          .collection("message")
+          .doc(peerId)
+          .collection("chat")
+          .doc(DateTime.now().millisecondsSinceEpoch.toString());
+
+      FirebaseFirestore.instance
+          .collection("users")
+          .doc(peerId)
+          .collection("message")
+          .doc(id)
+          .set({'recId': id, 'sendId': peerId});
+
+      var documentReferenceR = FirebaseFirestore.instance
+          .collection("users")
+          .doc(peerId)
+          .collection("message")
+          .doc(id)
+          .collection("chat")
           .doc(DateTime.now().millisecondsSinceEpoch.toString());
 
       FirebaseFirestore.instance.runTransaction((transaction) async {
@@ -240,10 +381,43 @@ class ChatScreenState extends State<ChatScreen> {
             'idTo': peerId,
             'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
             'content': content,
-            'type': type
+            'type': type,
+            'status': 'unread'
           },
         );
       });
+      FirebaseFirestore.instance.runTransaction((transaction) async {
+        transaction.set(
+          documentReferenceR,
+          {
+            'idFrom': id,
+            'idTo': peerId,
+            'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
+            'content': content,
+            'type': type,
+            'status': 'unread'
+          },
+        );
+      });
+
+      if (pushnotifi) {
+        print("push notification on");
+        // * FETCHING USER FCM-TOKEN
+        _repository.fetchUserFcmToken(widget.peerId).then((value) {
+          print("$value");
+          // * SENDING NOTIFICATION
+          FcmNotification()
+            ..fcmSendMessage(value, "$senderName has messaged you", content,
+                    receiverId: _senderuid,
+                    receiverName: senderName,
+                    receiverImg: senderPhotoUrl)
+                .then((value) {
+              print("Message Notification Successfully Sent");
+            });
+        });
+      } else {
+        print("push notification off");
+      }
       listScrollController.animateTo(0.0,
           duration: Duration(milliseconds: 300), curve: Curves.easeOut);
     } else {
@@ -501,10 +675,6 @@ class ChatScreenState extends State<ChatScreen> {
         isShowSticker = false;
       });
     } else {
-      FirebaseFirestore.instance
-          .collection('users')
-          .doc(id)
-          .update({'chattingWith': null});
       Navigator.pop(context);
     }
 
@@ -659,51 +829,51 @@ class ChatScreenState extends State<ChatScreen> {
       child: Row(
         children: <Widget>[
           // Button send image
-          Material(
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 1.0),
-              child: IconButton(
-                icon: Icon(Icons.camera_alt),
-                onPressed: null,
-                // getImage,
-                color: maincolor1,
+          Row(
+            children: [
+              Material(
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 1.0),
+                  child: IconButton(
+                    icon: Icon(Icons.camera_alt),
+                    onPressed: null,
+                    // getImage,
+                  ),
+                ),
+                color: Colors.white,
               ),
-            ),
-            color: Colors.white,
-          ),
-          Material(
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 1.0),
-              child: IconButton(
-                icon: Icon(Icons.image),
-                onPressed: getImage,
-                color: maincolor1,
+              Material(
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 1.0),
+                  child: IconButton(
+                    icon: Icon(Icons.image),
+                    onPressed: getImage,
+                  ),
+                ),
+                color: Colors.white,
               ),
-            ),
-            color: Colors.white,
-          ),
-          Material(
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 1.0),
-              child: IconButton(
-                icon: Icon(Icons.mic_none),
-                onPressed: null,
-                // getImage,
-                color: maincolor1,
+              Material(
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 1.0),
+                  child: IconButton(
+                    icon: Icon(Icons.mic_none),
+                    onPressed: null,
+                    // getImage,
+                  ),
+                ),
+                color: Colors.white,
               ),
-            ),
-            color: Colors.white,
-          ),
-          Material(
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 1.0),
-              child: IconButton(
-                icon: Icon(Icons.face),
-                onPressed: getSticker,
-                color: maincolor1,
+              Material(
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 1.0),
+                  child: IconButton(
+                    icon: Icon(Icons.face),
+                    onPressed: getSticker,
+                  ),
+                ),
+                color: Colors.white,
               ),
-            ),
-            color: Colors.white,
+            ],
           ),
 
           // Edit text
@@ -731,7 +901,6 @@ class ChatScreenState extends State<ChatScreen> {
               child: IconButton(
                 icon: Icon(Icons.send),
                 onPressed: () => onSendMessage(textEditingController.text, 0),
-                color: maincolor1,
               ),
             ),
             color: Colors.white,
@@ -748,18 +917,28 @@ class ChatScreenState extends State<ChatScreen> {
 
   Widget buildListMessage() {
     return Flexible(
-      child: groupChatId == ''
+      child: id == ''
           ? Center(
               child: CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(maincolor2)))
           : StreamBuilder(
               stream: FirebaseFirestore.instance
-                  .collection('messages')
-                  .doc(groupChatId)
-                  .collection(groupChatId)
+                  .collection("users")
+                  .doc(id) // * current user (firebaseuser)
+                  .collection("message")
+                  .doc(peerId)
+                  .collection("chat")
                   .orderBy('timestamp', descending: true)
                   .limit(_limit)
                   .snapshots(),
+              // .collection("users")
+              // .doc(id)
+              // .collection('messages')
+              // .doc(peerId)
+              // .collection("chat")
+              // .orderBy('timestamp', descending: true)
+              // .limit(_limit)
+              // .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return Center(

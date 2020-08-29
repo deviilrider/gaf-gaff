@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../Views/AuthScreens/login.dart';
+import 'package:gafgaff/Views/BaseWidget/route_page.dart';
 import '../Constants/colors.dart';
 
 class SplashView extends StatefulWidget {
@@ -12,11 +12,8 @@ class _SplashViewState extends State<SplashView> {
   @override
   void initState() {
     super.initState();
-    // new Future.delayed(const Duration(seconds: 2), () => routePage(context));
-    Future.delayed(
-        const Duration(seconds: 3),
-        () => Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => LoginView())));
+    new Future.delayed(
+        const Duration(seconds: 3), () => RoutePage()..routePage(context));
   }
 
   @override

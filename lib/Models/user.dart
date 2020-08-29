@@ -14,6 +14,7 @@ class GafGaffUser {
   String long;
   String phone;
   String fcmToken;
+  bool pushnotification;
 
   GafGaffUser(
       {this.uid,
@@ -24,7 +25,8 @@ class GafGaffUser {
       this.lat,
       this.long,
       this.phone,
-      this.fcmToken});
+      this.fcmToken,
+      this.pushnotification});
 
   Map<String, dynamic> toMap() {
     var data = Map<String, dynamic>();
@@ -36,6 +38,7 @@ class GafGaffUser {
     data['lat'] = this.lat;
     data['long'] = this.long;
     data['phone'] = this.phone;
+    data['pushnotification'] = this.pushnotification;
 
     return data;
   }
@@ -49,5 +52,6 @@ class GafGaffUser {
     this.lat = mapData['lat'];
     this.long = mapData['long'];
     this.phone = mapData['phone'];
+    this.pushnotification = mapData['pushnotification'] ?? false;
   }
 }

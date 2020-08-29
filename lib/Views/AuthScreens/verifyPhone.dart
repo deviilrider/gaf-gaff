@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gafgaff/Connections/auth.dart';
 import 'package:gafgaff/Constants/colors.dart';
-import 'package:gafgaff/Views/AuthScreens/login.dart';
+import 'package:gafgaff/Views/AuthScreens/login_with_phone.dart';
 import 'package:gafgaff/Widgets/dialogs.dart';
 import 'package:numeric_keyboard/numeric_keyboard.dart';
 
@@ -132,8 +132,10 @@ class _VerifyPhoneViewState extends State<VerifyPhoneView> {
               onPressed: () {
                 if (text != "") {
                   if (text.length == 6) {
-                    print(text);
+                    print("code" + text);
                     Dialogs()..getDialog(context);
+                    print("number" + widget.number);
+                    print("Verfication Id" + widget.verId);
                     AuthServices().signInwithPhone(
                         widget.number, widget.verId, text, context);
                   } else if (text.length < 6) {

@@ -3,8 +3,33 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:gafgaff/Constants/colors.dart';
 import 'package:gafgaff/Views/Profile/setting.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfileView extends StatelessWidget {
+class ProfileView extends StatefulWidget {
+  @override
+  _ProfileViewState createState() => _ProfileViewState();
+}
+
+class _ProfileViewState extends State<ProfileView> {
+  String uid, photoUrl, displayName, email, phone;
+
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
+
+  init() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      uid = prefs.getString('uid');
+      displayName = prefs.getString('displayName');
+      photoUrl = prefs.getString('photoUrl');
+      email = prefs.getString('email');
+      phone = prefs.getString('phone');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -41,14 +66,28 @@ class ProfileView extends StatelessWidget {
             ),
 
             SizedBox(
-              height: 30,
+              height: 20,
             ),
             //fetch user image
-            CircleAvatar(
-              radius: 50,
-              child: Icon(
-                Icons.person,
-                size: 80,
+            Card(
+              elevation: 10,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(100)),
+              child: CircleAvatar(
+                radius: 50,
+                child: photoUrl != null
+                    ? Container(
+                        height: 98,
+                        width: 98,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          image: DecorationImage(image: NetworkImage(photoUrl)),
+                        ),
+                      )
+                    : Icon(
+                        Icons.person,
+                        size: 80,
+                      ),
               ),
             ),
             SizedBox(
@@ -56,11 +95,15 @@ class ProfileView extends StatelessWidget {
             ),
             // fetch user name
             Text(
-              'Subash Pandey',
+              displayName != null ? displayName : "Full Name",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             Text(
-              '+977 9851255497',
+              phone != null ? phone : '',
+              style: TextStyle(fontStyle: FontStyle.normal, fontSize: 12),
+            ),
+            Text(
+              email != null ? email : '',
               style: TextStyle(fontStyle: FontStyle.normal, fontSize: 12),
             ),
             SettingListView(),

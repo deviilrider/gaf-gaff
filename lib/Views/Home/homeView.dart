@@ -1,14 +1,122 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:gafgaff/Models/fcm.dart';
+import 'package:gafgaff/Models/user.dart';
+import 'package:gafgaff/Views/Chat/chat.dart';
+import 'package:gafgaff/Views/Chat/chatList.dart';
 import 'package:gafgaff/Views/Home/chatList.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../Widgets/appbar.dart';
 
-class HomePageView extends StatelessWidget {
+class HomePageView extends StatefulWidget {
+  @override
+  _HomePageViewState createState() => _HomePageViewState();
+}
+
+class _HomePageViewState extends State<HomePageView> {
+  bool isDarkMode;
+
+  String uid, photoUrl, displayName, email, phone;
+  List<GafGaffUser> usersList = List<GafGaffUser>();
+
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
+
+  init() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      uid = prefs.getString('uid');
+      displayName = prefs.getString('displayName');
+      photoUrl = prefs.getString('photoUrl');
+      email = prefs.getString('email');
+      phone = prefs.getString('phone');
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
+  }
+
+  // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  var badgeNot;
+  int postNot = 0;
+  int followerNot = 0;
+  int articleNot = 0;
+
+  firebaseNotification() {
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("Notification-Type: $message");
+        // if (msg == NotificationServices.POST.toString()) {
+        //   Navigator.of(context)
+        //       .push(MaterialPageRoute(builder: (context) => PostNotificationPage(pid: doc,)));
+        // }
+
+        // fetchNotificationTotal();
+        // fetchUnreadMessageTotal();
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        // fetchNotificationTotal();
+        // fetchUnreadMessageTotal();
+
+        print("onLaunch: $message");
+        String msg = message['data']['type'];
+        print("onMessage: $msg");
+
+        if (msg == NotificationServices.MESSAGE.toString()) {
+          String receiverId = message['data']['receiverId'];
+          String receiverName = message['data']['receiverName'];
+          String receiverImg = message['data']['receiverImg'];
+
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ChatExtendedView(
+                    peerAvatar: receiverImg,
+                    peerName: receiverName,
+                    peerId: receiverId,
+                  )));
+        }
+        // fetchNotificationTotal();
+        // fetchUnreadMessageTotal();
+        // _navigateToItemDetail(message);
+      },
+      onResume: (Map<String, dynamic> message) async {
+        // fetchNotificationTotal();
+        // fetchUnreadMessageTotal();
+
+        print("onResume: $message");
+
+        // * WAITING FOR NOTIFICATION TYPE
+        String msg = message['data']['type'];
+        print("onMessage: $msg");
+
+        if (msg == NotificationServices.MESSAGE.toString()) {
+          String receiverId = message['data']['receiverId'];
+          String receiverName = message['data']['receiverName'];
+          String receiverImg = message['data']['receiverImg'];
+
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ChatExtendedView(
+                    peerAvatar: receiverImg,
+                    peerName: receiverName,
+                    peerId: receiverId,
+                  )));
+        }
+        // fetchNotificationTotal();
+        // fetchUnreadMessageTotal();
+        // _navigateToItemDetail(message);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
+        child: Theme(
+      data: ThemeData.light(),
+      child: Scaffold(
+        body: Column(
           children: <Widget>[
             CostumAppBar(
               pagetitle: "Gaf-Gaff",
@@ -59,39 +167,7 @@ class HomePageView extends StatelessWidget {
                 ),
               ],
             ),
-            Padding(
-              padding: EdgeInsets.all(5),
-              child: GestureDetector(
-                onTap: () {
-                  print('tapped');
-                },
-                child: Container(
-                  padding: EdgeInsets.only(
-                    left: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                        style: BorderStyle.solid, width: 1, color: Colors.grey),
-                    borderRadius: BorderRadius.all(Radius.circular(30)),
-                    color: Colors.white,
-                  ),
-                  child: TextField(
-                    enabled: false,
-                    decoration: InputDecoration(
-                        border: InputBorder.none,
-                        icon: Icon(
-                          Icons.search,
-                          color: Color.fromRGBO(159, 159, 159, 1),
-                        ),
-                        hintText: "Search....",
-                        hintStyle: TextStyle(
-                          color: Color.fromRGBO(159, 159, 159, 1),
-                        )),
-                  ),
-                ),
-              ),
-            ),
-            ChatListView()
+            Expanded(child: Message())
           ],
         ),
       ),

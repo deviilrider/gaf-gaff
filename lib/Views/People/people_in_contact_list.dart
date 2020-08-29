@@ -46,7 +46,7 @@ class PeoplePageView extends StatelessWidget {
                     color: Colors.grey.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(50)),
                 child: Icon(
-                  Icons.group_add,
+                  Icons.person_add,
                   size: 22,
                   color: Colors.black,
                 ),
@@ -70,7 +70,10 @@ class PeoplePageView extends StatelessWidget {
                   'All Contacts',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 )),
-            FriendListView()
+
+            Text(
+                'All your contacts will be shown here. Page is Under Construction')
+            // FriendListView()
           ],
         ),
       )

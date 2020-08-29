@@ -1,18 +1,53 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:gafgaff/Connections/auth.dart';
 import 'package:gafgaff/Widgets/dialogs.dart';
 import 'package:share/share.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class SettingListView extends StatelessWidget {
+class SettingListView extends StatefulWidget {
+  @override
+  _SettingListViewState createState() => _SettingListViewState();
+}
+
+class _SettingListViewState extends State<SettingListView> {
+  bool isDarkMode;
+
+  String uid, photoUrl, displayName, email, phone;
+
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
+
+  init() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      uid = prefs.getString('uid');
+      displayName = prefs.getString('displayName');
+      photoUrl = prefs.getString('photoUrl');
+      email = prefs.getString('email');
+      phone = prefs.getString('phone');
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       child: Column(
         children: [
           SwitchListTile(
-            value: false,
-            onChanged: (value) {},
+            value: !isDarkMode ? false : true,
+            onChanged: (value) async {
+              var prefs = await SharedPreferences.getInstance();
+              setState(() {
+                prefs.setBool('isDarkMode', value);
+                isDarkMode = value;
+              });
+            },
             title: Row(
               children: [
                 CircleAvatar(child: Icon(Icons.nightlight_round)),
@@ -79,6 +114,13 @@ class SettingListView extends StatelessWidget {
             },
             title: Text('Delete My Account'),
             leading: CircleAvatar(child: Icon(Icons.delete_forever_rounded)),
+          ),
+          ListTile(
+            onTap: () {
+              AuthServices()..handleSignOut();
+            },
+            title: Text('LogOut'),
+            leading: CircleAvatar(child: Icon(Icons.exit_to_app)),
           ),
           Divider(),
           Container(

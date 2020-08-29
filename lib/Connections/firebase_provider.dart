@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:gafgaff/StateManagement/messageRequestState.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../models/like.dart';
 import '../models/message.dart';
 import '../models/user.dart';
@@ -15,6 +16,7 @@ class FirebaseProvider {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  GoogleSignIn _googleSignIn;
   GafGaffUser user, _userauth;
   Like like;
   Message _message;
@@ -131,7 +133,7 @@ class FirebaseProvider {
   Future<bool> authenticateUser(User user) async {
     final QuerySnapshot result = await _firestore
         .collection("users")
-        .where("phone", isEqualTo: user.phoneNumber)
+        .where("email", isEqualTo: user.email)
         .get();
 
     final List<DocumentSnapshot> docs = result.docs;
@@ -153,28 +155,28 @@ class FirebaseProvider {
   }
 
   Future<void> signOut() async {
-    // if (_googleSignIn != null) {
-    //   await _googleSignIn.disconnect().whenComplete(() async {
-    //     await _googleSignIn.signOut();
-    //     await _auth.signOut();
-    //   });
-    // } else {
-    await _auth.signOut();
-    // }
+    if (_googleSignIn != null) {
+      await _googleSignIn.disconnect().whenComplete(() async {
+        await _googleSignIn.signOut();
+        await _auth.signOut();
+      });
+    } else {
+      await _auth.signOut();
+    }
   }
 
   Future<User> signIn() async {
-    // GoogleSignInAccount _signInAccount = await _googleSignIn.signIn();
-    // GoogleSignInAuthentication _signInAuthentication =
-    //     await _signInAccount.authentication;
+    GoogleSignInAccount _signInAccount = await _googleSignIn.signIn();
+    GoogleSignInAuthentication _signInAuthentication =
+        await _signInAccount.authentication;
 
-    // final AuthCredential credential = GoogleAuthProvider.getCredential(
-    //   accessToken: _signInAuthentication.accessToken,
-    //   idToken: _signInAuthentication.idToken,
-    // );
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: _signInAuthentication.accessToken,
+      idToken: _signInAuthentication.idToken,
+    );
 
-    // final User user = (await _auth.signInWithCredential(credential)).user;
-    // return user;
+    final User user = (await _auth.signInWithCredential(credential)).user;
+    return user;
   }
 
   Future<String> uploadImageToStorage(File imageFile) async {
@@ -438,33 +440,33 @@ class FirebaseProvider {
         .collection("users")
         .doc(user.uid)
         .collection("message")
-        .where("isarchived", isEqualTo: false)
+        // .where("isarchived", isEqualTo: false)
         // .where("isfollowing", isEqualTo: true)
         .snapshots()
         .listen((event) async {
-      event.docs.forEach((element) async {
-        QuerySnapshot querySnapshot = await _firestore
-            .collection("users")
-            .doc(user.uid)
-            .collection("following")
-            .where("uid", isEqualTo: element.id)
-            .get();
+      // event.docs.forEach((element) async {
+      //   QuerySnapshot querySnapshot = await _firestore
+      //       .collection("users")
+      //       .doc(user.uid)
+      //       .collection("following")
+      //       .where("uid", isEqualTo: element.id)
+      //       .get();
 
-        if (querySnapshot.docs.length > 0) {
-          print("${querySnapshot.docs[0].data()["uid"]} Found");
-          _firestore
-              .collection("users")
-              .doc(element.id)
-              .snapshots()
-              .listen((event) {
-            // userList.clear();
-            print(event.data()["displayName"]);
-            userList.add(GafGaffUser.fromMap(event.data()));
-          });
-        } else {
-          print("Not Found");
-        }
-      });
+      //   if (querySnapshot.docs.length > 0) {
+      //     print("${querySnapshot.docs[0].data()["uid"]} Found");
+      //     _firestore
+      //         .collection("users")
+      //         .doc(element.id)
+      //         .snapshots()
+      //         .listen((event) {
+      //       // userList.clear();
+      //       print(event.data()["displayName"]);
+      //       userList.add(GafGaffUser.fromMap(event.data()));
+      //     });
+      //   } else {
+      //     print("Not Found");
+      //   }
+      // });
     });
 
     return userList;

@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:gafgaff/Constants/constants.dart';
 import 'package:gafgaff/Views/Home/chatView.dart';
 
-class ChatListView extends StatelessWidget {
+class ChatListView extends StatefulWidget {
+  @override
+  _ChatListViewState createState() => _ChatListViewState();
+}
+
+class _ChatListViewState extends State<ChatListView> {
   @override
   Widget build(BuildContext context) {
     return Container(
