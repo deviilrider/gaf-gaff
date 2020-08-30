@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:gafgaff/Connections/auth.dart';
+import 'package:gafgaff/Views/Chat/message_request.dart';
+import 'package:gafgaff/Views/Pages/add_request_view.dart';
 import 'package:gafgaff/Widgets/dialogs.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -76,6 +78,8 @@ class _SettingListViewState extends State<SettingListView> {
           ListTile(
             onTap: () {
               ALertDialogs()..getErrorDialog(context, 'Features Coming Soon');
+              // Navigator.push(context,
+              //     MaterialPageRoute(builder: (context) => MessageRequest()));
             },
             title: Text('Message Requests'),
             leading: CircleAvatar(child: Icon(Icons.comment_rounded)),
@@ -83,6 +87,12 @@ class _SettingListViewState extends State<SettingListView> {
           ListTile(
             onTap: () {
               ALertDialogs()..getErrorDialog(context, 'Features Coming Soon');
+              // Navigator.push(
+              //     context,
+              //     MaterialPageRoute(
+              //         builder: (context) => AddRequests(
+              //               uid: uid,
+              //             )));
             },
             title: Text('Add Requests'),
             leading: CircleAvatar(child: Icon(Icons.person_add)),
@@ -101,23 +111,29 @@ class _SettingListViewState extends State<SettingListView> {
             title: Text('Story'),
             leading: CircleAvatar(child: Icon(Icons.flip_sharp)),
           ),
+          // ListTile(
+          //   onTap: () {
+          //     ALertDialogs()..getErrorDialog(context, 'Features Coming Soon');
+          //   },
+          //   title: Text('Switch Phone Number'),
+          //   leading: CircleAvatar(child: Icon(Icons.switch_account)),
+          // ),
           ListTile(
             onTap: () {
-              ALertDialogs()..getErrorDialog(context, 'Features Coming Soon');
-            },
-            title: Text('Switch Phone Number'),
-            leading: CircleAvatar(child: Icon(Icons.switch_account)),
-          ),
-          ListTile(
-            onTap: () {
-              ALertDialogs()..getErrorDialog(context, 'Features Coming Soon');
+              ALertDialogs()..delteAccount(context, uid);
+              //         _firestore
+              // .collection("users")
+              // .doc(currentUserId)
+              // .collection("following")
+              // .doc(followingUserId)
+              // .delete();
             },
             title: Text('Delete My Account'),
             leading: CircleAvatar(child: Icon(Icons.delete_forever_rounded)),
           ),
           ListTile(
             onTap: () {
-              AuthServices()..handleSignOut();
+              AuthServices()..handleSignOut(context);
             },
             title: Text('LogOut'),
             leading: CircleAvatar(child: Icon(Icons.exit_to_app)),

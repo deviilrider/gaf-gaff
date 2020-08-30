@@ -74,6 +74,14 @@ class FirebaseProvider {
         );
   }
 
+  Future<void> updateUserfcmToken(String uid) async {
+    var fcmToken = await _firebaseMessaging.getToken();
+    Map<String, dynamic> map = Map();
+    map['fcmToken'] = fcmToken;
+
+    _firestore.collection("users").doc(uid).update(map);
+  }
+
   Future<User> signInEmail(
       String email, String password, BuildContext context) async {
     UserCredential result = await _auth.signInWithEmailAndPassword(
@@ -352,6 +360,23 @@ class FirebaseProvider {
     return isFollowing;
   }
 
+  Future<bool> checkIsBackFollowing(
+      String ownerUID, String currentUserId) async {
+    bool isBackFollowing = false;
+    QuerySnapshot querySnapshot = await _firestore
+        .collection("users")
+        .doc(ownerUID)
+        .collection("following")
+        .get();
+
+    for (var i = 0; i < querySnapshot.docs.length; i++) {
+      if (querySnapshot.docs[i].id == currentUserId) {
+        isBackFollowing = true;
+      }
+    }
+    return isBackFollowing;
+  }
+
   Future<String> fetchNotificationCount(String userId) async {
     QuerySnapshot snapshot = await _firestore
         .collection("users")
@@ -440,7 +465,7 @@ class FirebaseProvider {
         .collection("users")
         .doc(user.uid)
         .collection("message")
-        // .where("isarchived", isEqualTo: false)
+        .where("isarchived", isEqualTo: false)
         // .where("isfollowing", isEqualTo: true)
         .snapshots()
         .listen((event) async {

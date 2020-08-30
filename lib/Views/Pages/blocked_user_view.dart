@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gafgaff/Models/user.dart';
+import 'package:gafgaff/models/user.dart';
 import 'package:gafgaff/ViewModel/blocked_users_viewmodel.dart';
 import '../BaseWidget/base_widget.dart';
 import '../../Widgets/loader.dart';

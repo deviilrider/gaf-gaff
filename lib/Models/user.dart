@@ -38,6 +38,7 @@ class GafGaffUser {
     data['lat'] = this.lat;
     data['long'] = this.long;
     data['phone'] = this.phone;
+    data['fcmToken'] = this.fcmToken;
     data['pushnotification'] = this.pushnotification;
 
     return data;
@@ -52,6 +53,7 @@ class GafGaffUser {
     this.lat = mapData['lat'];
     this.long = mapData['long'];
     this.phone = mapData['phone'];
+    this.fcmToken = mapData['fcmToken'];
     this.pushnotification = mapData['pushnotification'] ?? false;
   }
 }

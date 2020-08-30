@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gafgaff/Views/people_recommendations/people_recommed.dart';
 import '../../Widgets/appbar.dart';
 import 'friendList.dart';
 
@@ -63,16 +64,15 @@ class PeoplePageView extends StatelessWidget {
         child: ListView(
           scrollDirection: Axis.vertical,
           children: [
-            Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.only(left: 20),
-                child: Text(
-                  'All Contacts',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                )),
+            // Container(
+            //     alignment: Alignment.centerLeft,
+            //     padding: EdgeInsets.only(left: 20),
+            //     child: Text(
+            //       'All Contacts',
+            //       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            //     )),
 
-            Text(
-                'All your contacts will be shown here. Page is Under Construction')
+            PeopleRecommend()
             // FriendListView()
           ],
         ),

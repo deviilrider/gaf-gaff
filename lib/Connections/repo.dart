@@ -29,6 +29,9 @@ class Repository {
   Future<void> updateUserToken(User currentUser) =>
       _firebaseProvider.updateUserToken(currentUser);
 
+  Future<void> updateUserfcmToken(String currentUser) =>
+      _firebaseProvider.updateUserfcmToken(currentUser);
+
   Future<User> signIn() => _firebaseProvider.signIn();
 
   Future<User> signInEmail(
@@ -114,6 +117,9 @@ class Repository {
 
   Future<bool> checkIsFollowing(String ownerUID, String currentUserId) =>
       _firebaseProvider.checkIsFollowing(ownerUID, currentUserId);
+
+  Future<bool> checkIsBackFollowing(String ownerUID, String currentUserId) =>
+      _firebaseProvider.checkIsBackFollowing(ownerUID, currentUserId);
 
   Future<void> updatePhoto(String photoUrl, String uid) =>
       _firebaseProvider.updatePhoto(photoUrl, uid);

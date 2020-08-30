@@ -3,10 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gafgaff/Connections/repo.dart';
 import 'package:gafgaff/Models/user.dart';
 import 'package:gafgaff/Views/AuthScreens/updateInfo.dart';
 import 'package:gafgaff/Views/AuthScreens/verifyPhone.dart';
 import 'package:gafgaff/Views/BaseWidget/route_page.dart';
+import 'package:gafgaff/Views/Home/mainhome.dart';
+import 'package:gafgaff/Views/Widget/user_search.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,8 +20,7 @@ class AuthServices {
   GafGaffUser user;
   User currentUser;
   final GoogleSignIn googleSignIn = GoogleSignIn();
-
-  BuildContext get context => context;
+  Repository _repository = Repository();
 
   Future createUserWithPhone(String phone, BuildContext context) async {
     await FirebaseAuth.instance.verifyPhoneNumber(
@@ -194,12 +196,44 @@ class AuthServices {
   }
 
   //signout
-  Future<Null> handleSignOut() async {
+  Future<Null> handleSignOut(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
     await googleSignIn.disconnect();
     await googleSignIn.signOut();
     var prefs = await SharedPreferences.getInstance();
     prefs.setBool('isLoggedIn', false);
     RoutePage()..routePage(context);
+  }
+
+  //search user
+  searchUser(BuildContext context) async {
+    User user = await _repository.getCurrentUser();
+    var usersList = await _repository.fetchAllUsers(user);
+    showSearch(context: context, delegate: UserSearch(usersList: usersList));
+  }
+
+  //delete account
+  deleteAccount(String id, BuildContext context) async {
+    await _firestore.collection("users").doc(id).delete().then((value) {
+      handleSignOut(context);
+    });
+  }
+
+  //delete conversation
+  deleteConversation(String id, String recId, BuildContext context) async {
+    await _firestore
+        .collection("users")
+        .doc(id)
+        .collection("messages")
+        .doc(recId)
+        .delete()
+        .then((value) {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomeView(
+                    uid: id,
+                  )));
+    });
   }
 }

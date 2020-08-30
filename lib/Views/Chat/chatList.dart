@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gafgaff/StateManagement/messageRequestState.dart';
 // import 'package:gafgaff/StateManagement/messageRequestState.dart';
 import 'package:gafgaff/StateManagement/messageState.dart';
 import 'package:gafgaff/Widgets/dialogs.dart';
@@ -63,8 +64,7 @@ class _MessageState extends State<Message> {
 
   GafGaffUser currentUser, user, messageUser;
   String lastMessage;
-  IconData icon;
-  Color color;
+  String uid;
   List<String> messageUserUIDs = List<String>();
 
   void fetchUser() async {
@@ -91,23 +91,22 @@ class _MessageState extends State<Message> {
   }
 
   fetchUnreadMessageTotal() async {
+    final messageState = Provider.of<MessageState>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    String useruid = prefs.getString('uid');
-    final messageState = Provider.of<MessageState>(context);
+    uid = prefs.getString("uid");
     int tmpUnSeenCount = 0;
     int tmpSeenCount = 0;
     QuerySnapshot _chat;
     QuerySnapshot _messgae = await _firestore
         .collection("users")
-        .doc(useruid)
+        .doc(uid)
         .collection("message")
         .get();
 
     for (int i = 0; i < _messgae.docs.length; i++) {
       _chat = await _firestore
           .collection("users")
-          .doc(useruid)
+          .doc(uid)
           .collection("message")
           .doc(_messgae.docs[i].id)
           .collection("chat")
@@ -130,7 +129,7 @@ class _MessageState extends State<Message> {
     messageState.setTotalUnseenMessage(tmpUnSeenCount);
 
     // * MESSAGE REQUEST
-    _repository.fetchMessageRequest(useruid, context);
+    _repository.fetchMessageRequest(uid, context);
 
     print("total unseen message: ${messageState.totalMessage}");
     print("total tmp unseen message: $tmpUnSeenCount");
@@ -138,106 +137,9 @@ class _MessageState extends State<Message> {
 
   @override
   Widget build(BuildContext context) {
-    // final messageRequest = Provider.of<MessageRequestState>(context);
     return
-        // key: _scaffoldKey,
-        // appBar: AppBar(
-        //   backgroundColor: Colors.white,
-        //   elevation: 0,
-        //   title: Text('Inbox'),
-        //   centerTitle: true,
-        //   actions: <Widget>[
-        //     FlatButton(
-        //       onPressed: () {
-        //         showSearch(
-        //             context: context, delegate: ChatSearch(usersList: usersList));
-        //       },
-        //       child: Icon(
-        //         Icons.edit,
-        //         size: 20.0,
-        //         color: Colors.white,
-        //       ),
-        //     ),
-        //     Stack(
-        //       children: [
-        //         IconButton(
-        //           icon: Icon(
-        //             Icons.sms,
-        //             size: 20.0,
-        //             color: Colors.white,
-        //           ),
-        //           onPressed: () {
-        //             Navigator.of(context).push(MaterialPageRoute(
-        //                 builder: (context) => MessageRequest()));
-        //           },
-        //         ),
-        //         Positioned(
-        //           right: 0.0,
-        //           top: 0.0,
-        //           child: Container(
-        //             width: 20,
-        //             height: 20,
-        //             decoration: BoxDecoration(
-        //                 color: messageRequest.totalMessageRequest == 0
-        //                     ? Colors.transparent
-        //                     : Colors.redAccent,
-        //                 shape: BoxShape.circle),
-        //             child: Center(
-        //                 child: Text(messageRequest.totalMessageRequest == 0
-        //                     ? ""
-        //                     : messageRequest.totalMessageRequest.toString())),
-        //           ),
-        //         ),
-        //       ],
-        //     ),
-        //   ],
-        // ),
-        Column(
-      children: [
-        // * search ui button
-        buildSearchButton(context),
         // * USER CHAT CARD
-        buildUserChatList()
-      ],
-    );
-  }
-
-  // * search ui button
-  Padding buildSearchButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(40.0),
-        child: Container(
-            color: Colors.grey[300],
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: InkWell(
-                onTap: () {
-                  showSearch(
-                      context: context,
-                      delegate: ChatSearch(usersList: usersList));
-                },
-                child: Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.search,
-                      color: Colors.grey.shade700,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Text(
-                        'Search.....',
-                        style: TextStyle(
-                            color: Colors.grey.shade700, fontSize: 14.0),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            )),
-      ),
-    );
+        buildUserChatList();
   }
 
   // * USER CHAT CARD
@@ -270,8 +172,8 @@ class _MessageState extends State<Message> {
                           snapshot.data.documents;
 
                       String data;
-                      if (_document[0].data()["content"] != null) {
-                        String value = _document[0].data()["content"];
+                      if (_document[0].data()["message"] != null) {
+                        String value = _document[0].data()["message"];
                         if (value.length > 15) {
                           data = value.substring(0, 15) + "...";
                         } else {
@@ -299,18 +201,19 @@ class _MessageState extends State<Message> {
                                   context, messageUsersList[index].uid, index);
                             },
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: ((context) => ChatExtendedView(
-                                        peerId: messageUsersList[index].uid,
-                                        peerAvatar:
-                                            messageUsersList[index].photoUrl,
-                                        peerName:
-                                            messageUsersList[index].displayName,
-                                      )),
-                                ),
-                              );
+                              // Navigator.push(
+                              //   context,
+                              //   MaterialPageRoute(
+                              //     builder: ((context) => ChatDetailScreen(
+                              //           photoUrl:
+                              //               messageUsersList[index].photoUrl,
+                              //           name:
+                              //               messageUsersList[index].displayName,
+                              //           receiverUid:
+                              //               messageUsersList[index].uid,
+                              //         )),
+                              //   ),
+                              // );
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -584,68 +487,3 @@ class _MessageState extends State<Message> {
     );
   }
 }
-
-class ChatSearch extends SearchDelegate<String> {
-  List<GafGaffUser> usersList;
-  ChatSearch({this.usersList});
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: Icon(Icons.clear),
-        onPressed: () {
-          query = "";
-        },
-      )
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: AnimatedIcon(
-        icon: AnimatedIcons.menu_arrow,
-        progress: transitionAnimation,
-      ),
-      onPressed: () {
-        close(context, null);
-      },
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    return null;
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    final List<GafGaffUser> suggestionsList = query.isEmpty
-        ? usersList
-        : usersList.where((p) => p.displayName.startsWith(query)).toList();
-    return ListView.builder(
-      itemCount: suggestionsList.length,
-      itemBuilder: ((context, index) => ListTile(
-            onTap: () {
-              //   showResults(context);
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: ((context) => ChatExtendedView(
-                            peerAvatar: suggestionsList[index].photoUrl,
-                            peerName: suggestionsList[index].displayName,
-                            peerId: suggestionsList[index].uid,
-                          ))));
-            },
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(suggestionsList[index].photoUrl),
-            ),
-            title: Text(suggestionsList[index].displayName),
-          )),
-    );
-  }
-}
-
-TextStyle timeStyle = TextStyle(
-    fontSize: 9, color: Colors.grey.shade800, fontStyle: FontStyle.italic);

@@ -37,8 +37,69 @@ class ChatExtendedView extends StatelessWidget {
         backgroundColor: Colors.white,
         title: Row(
           children: [
-            GestureDetector(
-              onTap: () {
+            Expanded(
+              flex: 2,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PublicProfileView(
+                                peerId: peerId,
+                                peerName: peerName,
+                                peerAvatar: peerAvatar,
+                              )));
+                },
+                child: Card(
+                  elevation: 10,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100)),
+                  child: CircleAvatar(
+                    radius: 17,
+                    child: peerAvatar != null
+                        ? Container(
+                            height: 30,
+                            width: 30,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(50),
+                              image: DecorationImage(
+                                  image: NetworkImage(peerAvatar)),
+                            ),
+                          )
+                        : Icon(
+                            Icons.person,
+                            size: 10,
+                          ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 6,
+            ),
+            Expanded(
+              flex: 5,
+              child: Text(
+                peerName != null ? peerName : "",
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    color: Colors.black,
+                    fontFamily: "Roboto"),
+              ),
+            ),
+          ],
+        ),
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios),
+            onPressed: () => Navigator.pop(context)),
+        actions: [
+          IconButton(
+              icon: Icon(
+                Icons.phone_in_talk,
+                color: Colors.blue,
+              ),
+              onPressed: () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -47,46 +108,22 @@ class ChatExtendedView extends StatelessWidget {
                               peerName: peerName,
                               peerAvatar: peerAvatar,
                             )));
-              },
-              child: Card(
-                elevation: 6,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(50)),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(50)),
-                  child: peerAvatar != null
-                      ? Image.network(
-                          peerAvatar,
-                          height: 20,
-                          width: 20,
-                          fit: BoxFit.fill,
-                        )
-                      : Image.asset(
-                          "assets/images/gaf-gaff.png",
-                          height: 20,
-                          width: 20,
-                          fit: BoxFit.fill,
-                        ),
-                ),
+              }),
+          IconButton(
+              icon: Icon(
+                Icons.videocam,
+                color: Colors.blue,
               ),
-            ),
-            SizedBox(
-              width: 6,
-            ),
-            Text(
-              peerName != null ? peerName : "",
-              style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 22,
-                  color: Colors.black,
-                  fontFamily: "Roboto"),
-            ),
-          ],
-        ),
-        actions: [
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PublicProfileView(
+                              peerId: peerId,
+                              peerName: peerName,
+                              peerAvatar: peerAvatar,
+                            )));
+              }),
           IconButton(
               icon: Icon(
                 Icons.info,
@@ -130,6 +167,7 @@ class ChatScreenState extends State<ChatScreen> {
   String peerId;
   String peerAvatar;
   String id;
+  String photoUrl, displayName;
 
   List<QueryDocumentSnapshot> listMessage = new List.from([]);
   int _limit = 20;
@@ -204,14 +242,14 @@ class ChatScreenState extends State<ChatScreen> {
       QuerySnapshot following = await _firestore
           .collection("users")
           .doc(user.uid)
-          .collection("requested")
+          .collection("following")
           .where("uid", isEqualTo: widget.peerId)
           .get();
 
       QuerySnapshot follower = await _firestore
           .collection("users")
           .doc(user.uid)
-          .collection("incomeRequest")
+          .collection("followers")
           .where("uid", isEqualTo: widget.peerId)
           .get();
 
@@ -293,6 +331,8 @@ class ChatScreenState extends State<ChatScreen> {
 
     setState(() {
       id = prefs.getString('uid') ?? '';
+      displayName = prefs.getString('displayName') ?? '';
+      photoUrl = prefs.getString('photoUrl') ?? '';
     });
   }
 
@@ -407,10 +447,10 @@ class ChatScreenState extends State<ChatScreen> {
           print("$value");
           // * SENDING NOTIFICATION
           FcmNotification()
-            ..fcmSendMessage(value, "$senderName has messaged you", content,
-                    receiverId: _senderuid,
-                    receiverName: senderName,
-                    receiverImg: senderPhotoUrl)
+            ..fcmSendMessage(value, "$displayName has messaged you", content,
+                    receiverId: id,
+                    receiverName: displayName,
+                    receiverImg: photoUrl)
                 .then((value) {
               print("Message Notification Successfully Sent");
             });
@@ -961,3 +1001,6 @@ class ChatScreenState extends State<ChatScreen> {
     );
   }
 }
+
+TextStyle timeStyle = TextStyle(
+    fontSize: 9, color: Colors.grey.shade800, fontStyle: FontStyle.italic);

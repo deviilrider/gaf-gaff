@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gafgaff/Connections/auth.dart';
 import '../Constants/constants.dart';
 
 class Dialogs {
@@ -118,6 +119,118 @@ class Dialogs {
 }
 
 class ALertDialogs {
+  Future<void> delteAccount(BuildContext context, String uid) async {
+    return showDialog(
+      context: context,
+      child: SimpleDialog(
+        // useMaterialBorderRadius: true,
+        key: keyContext,
+        backgroundColor: Colors.white,
+        children: [
+          Center(
+            child: Column(
+              children: [
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    "Do you want to delete your account?",
+                    maxLines: 3,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.blueAccent),
+                  )
+                ]),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    FlatButton(
+                        onPressed: () {
+                          Dialogs()..getDialog(context);
+                          AuthServices()..deleteAccount(uid, context);
+                        },
+                        child: Text('Yes')),
+                    FlatButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('No')),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> deleteConversation(
+      BuildContext context, String uid, String receiverId) async {
+    return showDialog(
+      context: context,
+      child: SimpleDialog(
+        // useMaterialBorderRadius: true,
+        key: keyContext,
+        backgroundColor: Colors.white,
+        children: [
+          Center(
+            child: Column(
+              children: [
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      Icon(
+                        Icons.delete_forever,
+                        color: Colors.red,
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    "Do you want to delete your account?",
+                    maxLines: 3,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.blueAccent),
+                  )
+                ]),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    FlatButton(
+                        onPressed: () {
+                          Dialogs()..getDialog(context);
+                          AuthServices()
+                            ..deleteConversation(uid, receiverId, context);
+                        },
+                        child: Text('Yes')),
+                    FlatButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('No')),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> getSuccessDialog(BuildContext context, String text) async {
     return showDialog(
       context: context,

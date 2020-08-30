@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gafgaff/Constants/constants.dart';
-import 'package:gafgaff/Views/Home/chatView.dart';
 
 class FriendListView extends StatelessWidget {
   @override
@@ -13,8 +12,8 @@ class FriendListView extends StatelessWidget {
         itemBuilder: (context, index) {
           return GestureDetector(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ChatView()));
+                // Navigator.push(context,
+                //     MaterialPageRoute(builder: (context) => ChatView()));
               },
               child: Container(
                 width: MediaQuery.of(context).size.width,

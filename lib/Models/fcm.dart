@@ -10,8 +10,8 @@ enum NotificationServices { POST, ARTICLE, MESSAGE }
 
 class FcmNotification {
   static const String serverKEY =
-      "AAAAyAeaKWM:APA91bGVcJsGdPYDoBSmEJH4shXFW3j-rMRt03RlPtVO_ZyBSNbtiyJIfNfr5ZcX00rAUuMV-d-pIGthbUtrSVRSdzVpqa1n24iyT0zP1CvA11VNqfoGrUuDWwZnKCxlDnDCaGX1U0GG";
-
+      // "AAAAyAeaKWM:APA91bGVcJsGdPYDoBSmEJH4shXFW3j-rMRt03RlPtVO_ZyBSNbtiyJIfNfr5ZcX00rAUuMV-d-pIGthbUtrSVRSdzVpqa1n24iyT0zP1CvA11VNqfoGrUuDWwZnKCxlDnDCaGX1U0GG";
+      "AAAAeAkVGw0:APA91bFhW2kgFwhwYomOI-P5sLJ32AfFEPmptja8lmQ4rJOEh5nzYQ0G44bydnjxyvI-Qa1gqhzfWqksMsZ5x5gn8z5g57mXzr-uzStj3j0OEGqEh3WqmsOyVH_64fs0RJsSxS3HLtU8";
   Future<void> fcmSendToCurrentUser(
       String fcmToken, String title, String content,
       {String type, String docID}) async {
@@ -165,7 +165,7 @@ class FcmNotification {
       String fcmToken, GafGaffUser currentUser, String title) async {
     var body = jsonEncode(<String, dynamic>{
       'notification': <String, dynamic>{
-        'body': "${currentUser.displayName} started following you",
+        'body': "${currentUser.displayName} added you.",
         'title': "$title",
       },
       'priority': 'high',
