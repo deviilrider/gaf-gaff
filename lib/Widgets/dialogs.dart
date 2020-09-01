@@ -1,8 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gafgaff/Connections/auth.dart';
-import '../Constants/constants.dart';
+import 'package:gafgaff/constants/strings.dart';
 
 class Dialogs {
   Future<void> getDialog(BuildContext context) async {
@@ -156,7 +155,7 @@ class ALertDialogs {
                     FlatButton(
                         onPressed: () {
                           Dialogs()..getDialog(context);
-                          AuthServices()..deleteAccount(uid, context);
+                          // AuthServices()..deleteAccount(uid, context);
                         },
                         child: Text('Yes')),
                     FlatButton(
@@ -212,8 +211,8 @@ class ALertDialogs {
                     FlatButton(
                         onPressed: () {
                           Dialogs()..getDialog(context);
-                          AuthServices()
-                            ..deleteConversation(uid, receiverId, context);
+                          // AuthServices()
+                          // ..deleteConversation(uid, receiverId, context);
                         },
                         child: Text('Yes')),
                     FlatButton(

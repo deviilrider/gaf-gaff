@@ -1,59 +1,45 @@
-import 'dart:convert';
-
-GafGaffUser userFromJson(String data) => GafGaffUser.fromMap(json.decode(data));
-
-String userToJson(GafGaffUser gafGaffUser) => json.encode(gafGaffUser.toMap());
-
-class GafGaffUser {
+class User {
   String uid;
+  String name;
   String email;
-  String photoUrl;
-  String displayName;
-  String country;
-  String lat;
-  String long;
-  String phone;
+  String username;
+  String status;
+  int state;
+  String profilePhoto;
   String fcmToken;
-  bool pushnotification;
 
-  GafGaffUser(
+  User(
       {this.uid,
+      this.name,
       this.email,
-      this.photoUrl,
-      this.displayName,
-      this.country,
-      this.lat,
-      this.long,
-      this.phone,
-      this.fcmToken,
-      this.pushnotification});
+      this.username,
+      this.status,
+      this.state,
+      this.profilePhoto,
+      this.fcmToken});
 
-  Map<String, dynamic> toMap() {
+  Map toMap(User user) {
     var data = Map<String, dynamic>();
-    data['uid'] = this.uid;
-    data['email'] = this.email;
-    data['photoUrl'] = this.photoUrl;
-    data['displayName'] = this.displayName;
-    data['country'] = this.country;
-    data['lat'] = this.lat;
-    data['long'] = this.long;
-    data['phone'] = this.phone;
-    data['fcmToken'] = this.fcmToken;
-    data['pushnotification'] = this.pushnotification;
-
+    data['uid'] = user.uid;
+    data['name'] = user.name;
+    data['email'] = user.email;
+    data['username'] = user.username;
+    data["status"] = user.status;
+    data["state"] = user.state;
+    data["profile_photo"] = user.profilePhoto;
+    data["fcmToken"] = user.fcmToken;
     return data;
   }
 
-  GafGaffUser.fromMap(Map<String, dynamic> mapData) {
+  // Named constructor
+  User.fromMap(Map<String, dynamic> mapData) {
     this.uid = mapData['uid'];
+    this.name = mapData['name'];
     this.email = mapData['email'];
-    this.photoUrl = mapData['photoUrl'];
-    this.displayName = mapData['displayName'];
-    this.country = mapData['country'];
-    this.lat = mapData['lat'];
-    this.long = mapData['long'];
-    this.phone = mapData['phone'];
+    this.username = mapData['username'];
+    this.status = mapData['status'];
+    this.state = mapData['state'];
+    this.profilePhoto = mapData['profile_photo'];
     this.fcmToken = mapData['fcmToken'];
-    this.pushnotification = mapData['pushnotification'] ?? false;
   }
 }

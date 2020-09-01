@@ -1,12 +1,11 @@
 import 'dart:convert';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:gafgaff/provider/user_provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:provider/provider.dart';
 import 'user.dart';
 
-import 'message.dart';
-
-enum NotificationServices { POST, ARTICLE, MESSAGE }
+enum NotificationServices { POST, ARTICLE, MESSAGE, CALL }
 
 class FcmNotification {
   static const String serverKEY =
@@ -75,10 +74,10 @@ class FcmNotification {
   }
 
   Future<void> fcmSendComments(
-      String fcmToken, GafGaffUser currentUser, String title) async {
+      String fcmToken, User currentUser, String title) async {
     var body = jsonEncode(<String, dynamic>{
       'notification': <String, dynamic>{
-        'body': "${currentUser.displayName} comment on your post",
+        'body': "${currentUser.name} comment on your post",
         'title': "$title",
       },
       'priority': 'high',
@@ -104,10 +103,10 @@ class FcmNotification {
   }
 
   Future<void> fcmSendLikes(
-      String fcmToken, GafGaffUser currentUser, String title) async {
+      String fcmToken, User currentUser, String title) async {
     var body = jsonEncode(<String, dynamic>{
       'notification': <String, dynamic>{
-        'body': "${currentUser.displayName} liked your post",
+        'body': "${currentUser.name} liked your post",
         'title': "$title",
       },
       'priority': 'high',
@@ -136,7 +135,7 @@ class FcmNotification {
       String fcmToken, User currentUser, String title) async {
     var body = jsonEncode(<String, dynamic>{
       'notification': <String, dynamic>{
-        'body': "${currentUser.displayName} shared your post",
+        'body': "${currentUser.name} shared your post",
         'title': "$title",
       },
       'priority': 'high',
@@ -162,10 +161,10 @@ class FcmNotification {
   }
 
   Future<void> fcmSendFollowinng(
-      String fcmToken, GafGaffUser currentUser, String title) async {
+      String fcmToken, User currentUser, String title) async {
     var body = jsonEncode(<String, dynamic>{
       'notification': <String, dynamic>{
-        'body': "${currentUser.displayName} added you.",
+        'body': "${currentUser.name} added you.",
         'title': "$title",
       },
       'priority': 'high',
@@ -190,8 +189,40 @@ class FcmNotification {
         body: body);
   }
 
-  Future<void> fcmSendMessage(String fcmToken, String title, String message,
-      {String receiverId, String receiverName, String receiverImg}) async {
+  Future<void> fcmSendMessage(String fcmToken,
+      {String receiverId, BuildContext context}) async {
+    final UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: false);
+    var messageSend = "${userProvider.getUser.name} sent you message.";
+    var title = userProvider.getUser.name;
+    var body = jsonEncode(<String, dynamic>{
+      'notification': <String, dynamic>{
+        'body': "$messageSend",
+        'title': "$title",
+      },
+      'priority': 'high',
+      'data': <String, dynamic>{
+        'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+        'id': '1',
+        'status': 'done',
+        'type': NotificationServices.MESSAGE.toString(),
+        'senderId': userProvider.getUser.uid,
+        'title': 'title',
+        'body': "Say hello",
+        'tweetId': ""
+      },
+      'to': "$fcmToken",
+    });
+    var response = await http.post('https://fcm.googleapis.com/fcm/send',
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': 'key=$serverKEY'
+        },
+        body: body);
+  }
+
+  Future<void> fcmCallNotify(String fcmToken, String title, String message,
+      {User receiver, User caller}) async {
     var body = jsonEncode(<String, dynamic>{
       'notification': <String, dynamic>{
         'body': "$message",
@@ -202,11 +233,10 @@ class FcmNotification {
         'click_action': 'FLUTTER_NOTIFICATION_CLICK',
         'id': '1',
         'status': 'done',
-        'type': NotificationServices.MESSAGE.toString(),
+        'type': NotificationServices.CALL.toString(),
         'senderId': '1234',
-        'receiverId': '$receiverId',
-        'receiverName': '$receiverName',
-        'receiverImg': '$receiverImg',
+        'receiver': receiver,
+        'caller': caller,
         'title': 'title',
         'body': "Say hello",
         'tweetId': ""
