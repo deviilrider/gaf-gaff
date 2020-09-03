@@ -3,40 +3,20 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:gafgaff/Constants/colors.dart';
 import 'package:gafgaff/Widgets/dialogs.dart';
+import 'package:gafgaff/models/user.dart';
+import 'package:gafgaff/provider/user_provider.dart';
 import 'package:gafgaff/screens/callscreens/pickup/pickup_layout.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
-class PublicProfileView extends StatefulWidget {
-  final String peerId;
-  final String peerAvatar;
-  final String peerName;
+class PublicProfileView extends StatelessWidget {
+  final User receiver;
 
-  const PublicProfileView(
-      {Key key, this.peerId, this.peerAvatar, this.peerName})
-      : super(key: key);
-
-  @override
-  _PublicProfileViewState createState() => _PublicProfileViewState();
-}
-
-class _PublicProfileViewState extends State<PublicProfileView> {
-  String uid;
-
-  @override
-  void initState() {
-    super.initState();
-    init();
-  }
-
-  init() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      uid = prefs.getString('uid');
-    });
-  }
+  PublicProfileView({this.receiver});
 
   @override
   Widget build(BuildContext context) {
+    final UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: false);
     return PickupLayout(
         scaffold: SafeArea(
       child: Scaffold(
@@ -81,14 +61,14 @@ class _PublicProfileViewState extends State<PublicProfileView> {
                     borderRadius: BorderRadius.circular(100)),
                 child: CircleAvatar(
                   radius: 50,
-                  child: widget.peerAvatar != null
+                  child: receiver.profilePhoto != null
                       ? Container(
                           height: 98,
                           width: 98,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(50),
                             image: DecorationImage(
-                                image: NetworkImage(widget.peerAvatar)),
+                                image: NetworkImage(receiver.profilePhoto)),
                           ),
                         )
                       : Icon(
@@ -102,7 +82,7 @@ class _PublicProfileViewState extends State<PublicProfileView> {
               ),
               // fetch user name
               Text(
-                widget.peerName != null ? widget.peerName : "Full Name",
+                receiver.name != null ? receiver.name : "Full Name",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               ),
               Row(
@@ -155,7 +135,8 @@ class _PublicProfileViewState extends State<PublicProfileView> {
               ListTile(
                 onTap: () {
                   ALertDialogs()
-                    ..deleteConversation(context, uid, widget.peerId);
+                    ..deleteConversation(
+                        context, userProvider.getUser.uid, receiver.uid);
                 },
                 title: Text('Delete All Conversation'),
                 leading: CircleAvatar(child: Icon(Icons.delete_forever)),

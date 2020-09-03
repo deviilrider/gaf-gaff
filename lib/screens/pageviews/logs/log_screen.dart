@@ -11,20 +11,7 @@ class LogScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return PickupLayout(
       scaffold: Scaffold(
-        backgroundColor: UniversalVariables.blackColor,
-        appBar: CostumAppBar(
-          title: "Calls",
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(
-                Icons.search,
-                color: Colors.white,
-              ),
-              onPressed: () => Navigator.pushNamed(context, "/search_screen"),
-            ),
-          ],
-        ),
-        floatingActionButton: FloatingColumn(),
+        // floatingActionButton: FloatingColumn(),
         body: Padding(
           padding: EdgeInsets.only(left: 15),
           child: LogListContainer(),

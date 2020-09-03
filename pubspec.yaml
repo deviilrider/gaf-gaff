@@ -77,7 +77,7 @@ dependencies:
   intl: ^0.16.1
   connectivity: ^0.4.9+2
   share: ^0.6.5
-
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

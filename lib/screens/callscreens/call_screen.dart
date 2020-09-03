@@ -4,6 +4,8 @@ import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:gafgaff/constants/colors.dart';
+import 'package:gafgaff/widgets/circular_button.dart';
 import 'package:provider/provider.dart';
 import 'package:gafgaff/configs/agora_configs.dart';
 import 'package:gafgaff/models/call.dart';
@@ -30,6 +32,8 @@ class _CallScreenState extends State<CallScreen> {
   static final _users = <int>[];
   final _infoStrings = <String>[];
   bool muted = false;
+  bool cameraOff = false;
+  bool viewToolbar = false;
 
   @override
   void initState() {
@@ -202,6 +206,21 @@ class _CallScreenState extends State<CallScreen> {
     );
   }
 
+  /// Video view stackview wrapper
+  Widget _floatVideoview(List<Widget> views) {
+    final wrappedViews = views.map<Widget>(_videoView).toList();
+    return Container(
+      margin: EdgeInsets.only(top: 20, left: 20),
+      alignment: Alignment.topRight,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(40)),
+      width: 100,
+      height: 150,
+      child: Row(
+        children: wrappedViews,
+      ),
+    );
+  }
+
   /// Video layout wrapper
   Widget _viewRows() {
     final views = _getRenderViews();
@@ -213,10 +232,10 @@ class _CallScreenState extends State<CallScreen> {
         ));
       case 2:
         return Container(
-            child: Column(
+            child: Stack(
           children: <Widget>[
-            _expandedVideoRow([views[0]]),
-            _expandedVideoRow([views[1]])
+            _videoView(views[1]),
+            _floatVideoview([views[0]])
           ],
         ));
       case 3:
@@ -304,48 +323,58 @@ class _CallScreenState extends State<CallScreen> {
   /// Toolbar layout
   Widget _toolbar() {
     return Container(
-      alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.symmetric(vertical: 48),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      alignment: Alignment.bottomRight,
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
-          RawMaterialButton(
-            onPressed: _onToggleMute,
-            child: Icon(
-              muted ? Icons.mic : Icons.mic_off,
-              color: muted ? Colors.white : Colors.blueAccent,
-              size: 20.0,
-            ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: muted ? Colors.blueAccent : Colors.white,
-            padding: const EdgeInsets.all(12.0),
+          CircularButton(
+            onTap: _onToggleMute,
+            radius: 50,
+            icon: muted ? Icons.mic_off : Icons.mic,
+            iconColor: muted ? Colors.white : maincolor3,
+            backGroundColor: muted ? maincolor3 : Colors.white,
           ),
-          RawMaterialButton(
-            onPressed: () => callMethods.endCall(
+          CircularButton(
+            onTap: _onSwitchCamera,
+            radius: 50,
+            icon: Icons.switch_camera,
+            iconColor: maincolor3,
+            backGroundColor: Colors.white,
+          ),
+          CircularButton(
+            onTap: () {},
+            radius: 50,
+            icon: cameraOff ? Icons.videocam_off : Icons.videocam,
+            iconColor: cameraOff ? Colors.white : maincolor3,
+            backGroundColor: cameraOff ? maincolor3 : Colors.white,
+          ),
+          CircularButton(
+            onTap: () => callMethods.endCall(
               call: widget.call,
             ),
-            child: Icon(
-              Icons.call_end,
-              color: Colors.white,
-              size: 35.0,
-            ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: Colors.redAccent,
-            padding: const EdgeInsets.all(15.0),
+            radius: 50,
+            icon: Icons.call_end_outlined,
+            iconColor: Colors.white,
+            backGroundColor: Colors.red,
           ),
-          RawMaterialButton(
-            onPressed: _onSwitchCamera,
-            child: Icon(
-              Icons.switch_camera,
-              color: Colors.blueAccent,
-              size: 20.0,
-            ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: Colors.white,
-            padding: const EdgeInsets.all(12.0),
+          CircularButton(
+            onTap: () {
+              if (viewToolbar) {
+                setState(() {
+                  viewToolbar = false;
+                });
+              } else {
+                setState(() {
+                  viewToolbar = true;
+                });
+              }
+            },
+            radius: 50,
+            icon: Icons.keyboard_arrow_down,
+            size: 30,
+            iconColor: Colors.black,
+            backGroundColor: Colors.grey.withOpacity(0.5),
           )
         ],
       ),
@@ -365,15 +394,39 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Center(
-        child: Stack(
-          children: <Widget>[
-            _viewRows(),
-            // _panel(),
-            _toolbar(),
-          ],
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: Stack(
+            children: <Widget>[
+              _viewRows(),
+              // _panel(),
+              viewToolbar
+                  ? _toolbar()
+                  : Container(
+                      alignment: Alignment.bottomRight,
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      child: CircularButton(
+                        onTap: () {
+                          if (viewToolbar) {
+                            setState(() {
+                              viewToolbar = false;
+                            });
+                          } else {
+                            setState(() {
+                              viewToolbar = true;
+                            });
+                          }
+                        },
+                        radius: 50,
+                        icon: Icons.keyboard_arrow_up,
+                        size: 30,
+                        iconColor: Colors.black,
+                        backGroundColor: Colors.grey.withOpacity(0.5),
+                      ))
+            ],
+          ),
         ),
       ),
     );

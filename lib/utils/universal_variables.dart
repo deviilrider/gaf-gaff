@@ -8,6 +8,9 @@ class UniversalVariables {
   static final Color onlineDotColor = Color(0xff46dc64);
   static final Color lightBlueColor = Color(0xff0077d7);
   static final Color separatorColor = Color(0xff272c35);
+  static final Color maincolor1 = Color(0xFFFA6515);
+  static final Color maincolor2 = Color(0xFFA50017);
+  static final Color maincolor3 = Color(0xFFFB8B0D);
 
   static final Color gradientColorStart = Color(0xff00b6f3);
   static final Color gradientColorEnd = Color(0xff0184dc);
@@ -16,7 +19,7 @@ class UniversalVariables {
   static final Color receiverColor = Color(0xff1e2225);
 
   static final Gradient fabGradient = LinearGradient(
-      colors: [gradientColorStart, gradientColorEnd],
+      colors: [maincolor1, maincolor3],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight);
 }

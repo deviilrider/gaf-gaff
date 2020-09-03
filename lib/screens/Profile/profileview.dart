@@ -18,38 +18,8 @@ class ProfileView extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            //appbar
-            Container(
-              margin: EdgeInsets.only(top: 30),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Card(
-                      elevation: 6,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(50)),
-                      child: Container(
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(50)),
-                        child: Icon(
-                          Icons.arrow_back_ios,
-                          size: 25,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
             SizedBox(
-              height: 20,
+              height: 10,
             ),
             //fetch user image
             Card(
@@ -97,6 +67,7 @@ class ProfileView extends StatelessWidget {
                   : '',
               style: TextStyle(fontStyle: FontStyle.normal, fontSize: 12),
             ),
+            Divider(),
             SettingListView(),
             Divider(),
             ListTile(

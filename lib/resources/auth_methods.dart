@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:gafgaff/widgets/user_search.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:gafgaff/constants/strings.dart';
 import 'package:gafgaff/enum/user_state.dart';
@@ -130,6 +131,19 @@ class AuthMethods {
 
     _userCollection.document(userId).updateData({
       "state": stateNum,
+    });
+  }
+
+  //search user
+  searchUser(BuildContext context) async {
+    getCurrentUser().then((FirebaseUser user) {
+      fetchAllUsers(user).then((List<User> list) {
+        showSearch(
+            context: context,
+            delegate: UserSearch(
+              usersList: list,
+            ));
+      });
     });
   }
 

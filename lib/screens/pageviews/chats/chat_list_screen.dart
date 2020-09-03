@@ -7,9 +7,6 @@ import 'package:gafgaff/resources/chat_methods.dart';
 import 'package:gafgaff/screens/callscreens/pickup/pickup_layout.dart';
 import 'package:gafgaff/screens/pageviews/chats/widgets/contact_view.dart';
 import 'package:gafgaff/screens/pageviews/chats/widgets/quiet_box.dart';
-import 'package:gafgaff/screens/pageviews/chats/widgets/user_circle.dart';
-import 'package:gafgaff/utils/universal_variables.dart';
-import 'package:gafgaff/widgets/costumappbar.dart';
 
 import 'widgets/new_chat_button.dart';
 
@@ -18,28 +15,6 @@ class ChatListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return PickupLayout(
       scaffold: Scaffold(
-        backgroundColor: UniversalVariables.blackColor,
-        appBar: CostumAppBar(
-          title: UserCircle(),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(
-                Icons.search,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                Navigator.pushNamed(context, "/search_screen");
-              },
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.more_vert,
-                color: Colors.white,
-              ),
-              onPressed: () {},
-            ),
-          ],
-        ),
         floatingActionButton: NewChatButton(),
         body: ChatListContainer(),
       ),
@@ -65,7 +40,7 @@ class ChatListContainer extends StatelessWidget {
 
               if (docList.isEmpty) {
                 return QuietBox(
-                  heading: "This is where all the contacts are listed",
+                  heading: "This is where all the messages are listed",
                   subtitle:
                       "Search for your friends and family to start calling or chatting with them",
                 );

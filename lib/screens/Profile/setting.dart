@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:gafgaff/Widgets/dialogs.dart';
 import 'package:gafgaff/enum/user_state.dart';
+import 'package:gafgaff/provider/theme_provider.dart';
 import 'package:gafgaff/provider/user_provider.dart';
 import 'package:gafgaff/resources/auth_methods.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +26,8 @@ class _SettingListViewState extends State<SettingListView> {
   }
 
   signOut(BuildContext context) async {
-    final UserProvider userProvider = Provider.of<UserProvider>(context);
+    final UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: false);
 
     final bool isLoggedOut = await AuthMethods().signOut();
     if (isLoggedOut) {
@@ -48,17 +50,23 @@ class _SettingListViewState extends State<SettingListView> {
   Widget build(BuildContext context) {
     final UserProvider userProvider =
         Provider.of<UserProvider>(context, listen: false);
+    final ThemeChanger themeChanger =
+        Provider.of<ThemeChanger>(context, listen: false);
     return Container(
       child: Column(
         children: [
           SwitchListTile(
-            value: !isDarkMode ? false : true,
-            onChanged: (value) async {
-              var prefs = await SharedPreferences.getInstance();
-              setState(() {
-                prefs.setBool('isDarkMode', value);
-                isDarkMode = value;
-              });
+            value: themeChanger.getTheme() == ThemeData.light() ? false : true,
+            onChanged: (value) {
+              if (!value) {
+                setState(() {
+                  themeChanger.setTheme(ThemeData.dark());
+                });
+              } else {
+                setState(() {
+                  themeChanger.setTheme(ThemeData.light());
+                });
+              }
             },
             title: Row(
               children: [

@@ -51,6 +51,7 @@ class ViewLayout extends StatelessWidget {
     final UserProvider userProvider = Provider.of<UserProvider>(context);
 
     return CustomTile(
+      margin: EdgeInsets.only(bottom: 10),
       mini: false,
       onTap: () => Navigator.push(
           context,
@@ -61,8 +62,6 @@ class ViewLayout extends StatelessWidget {
           )),
       title: Text(
         (contact != null ? contact.name : null) != null ? contact.name : "..",
-        style:
-            TextStyle(color: Colors.white, fontFamily: "Arial", fontSize: 19),
       ),
       subtitle: LastMessageContainer(
         stream: _chatMethods.fetchLastMessageBetween(

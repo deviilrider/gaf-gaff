@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gafgaff/screens/search_screen.dart';
+import 'package:gafgaff/resources/auth_methods.dart';
 import 'package:gafgaff/utils/universal_variables.dart';
 
 class QuiteBox extends StatelessWidget {
@@ -35,15 +35,11 @@ class QuiteBox extends StatelessWidget {
               ),
               SizedBox(height: 25),
               FlatButton(
-                color: UniversalVariables.lightBlueColor,
-                child: Text("START SEARCHING"),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SearchScreen(),
-                  ),
-                ),
-              ),
+                  color: UniversalVariables.lightBlueColor,
+                  child: Text("START SEARCHING"),
+                  onPressed: () {
+                    AuthMethods()..searchUser(context);
+                  }),
             ],
           ),
         ),

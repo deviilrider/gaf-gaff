@@ -92,9 +92,9 @@ class _SearchScreenState extends State<SearchScreen> {
         ? []
         : userList != null
             ? userList.where((User user) {
-                String _getUsername = user.username.toLowerCase();
-                String _query = query.toLowerCase();
-                String _getName = user.name.toLowerCase();
+                String _getUsername = user.username;
+                String _query = query;
+                String _getName = user.name;
                 bool matchesUsername = _getUsername.contains(_query);
                 bool matchesName = _getName.contains(_query);
 

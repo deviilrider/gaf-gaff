@@ -120,7 +120,7 @@ class ChatMethods {
     Message message;
 
     message = Message.imageMessage(
-        message: "IMAGE",
+        message: "Photo message.",
         receiverId: receiverId,
         senderId: senderId,
         photoUrl: url,

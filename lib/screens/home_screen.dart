@@ -2,8 +2,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:gafgaff/constants/colors.dart';
 import 'package:gafgaff/models/fcm.dart';
 import 'package:gafgaff/models/user.dart';
+import 'package:gafgaff/screens/Profile/profileview.dart';
 import 'package:gafgaff/screens/chatscreens/chat_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:gafgaff/enum/user_state.dart';
@@ -13,7 +15,6 @@ import 'package:gafgaff/resources/local_db/repository/log_repository.dart';
 import 'package:gafgaff/screens/callscreens/pickup/pickup_layout.dart';
 import 'package:gafgaff/screens/pageviews/chats/chat_list_screen.dart';
 import 'package:gafgaff/screens/pageviews/logs/log_screen.dart';
-import 'package:gafgaff/utils/universal_variables.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -177,77 +178,31 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    double _labelFontSize = 10;
-
     return PickupLayout(
-      scaffold: Scaffold(
-        backgroundColor: UniversalVariables.blackColor,
-        body: PageView(
-          children: <Widget>[
-            ChatListScreen(),
-            LogScreen(),
-            Center(
-                child: Text(
-              "Contact Screen",
-              style: TextStyle(color: Colors.white),
-            )),
-          ],
-          controller: pageController,
-          onPageChanged: onPageChanged,
-          physics: NeverScrollableScrollPhysics(),
-        ),
-        bottomNavigationBar: Container(
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: CupertinoTabBar(
-              backgroundColor: UniversalVariables.blackColor,
-              items: <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.chat,
-                      color: (_page == 0)
-                          ? UniversalVariables.lightBlueColor
-                          : UniversalVariables.greyColor),
-                  title: Text(
-                    "Chats",
-                    style: TextStyle(
-                        fontSize: _labelFontSize,
-                        color: (_page == 0)
-                            ? UniversalVariables.lightBlueColor
-                            : Colors.grey),
-                  ),
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.call,
-                      color: (_page == 1)
-                          ? UniversalVariables.lightBlueColor
-                          : UniversalVariables.greyColor),
-                  title: Text(
-                    "Calls",
-                    style: TextStyle(
-                        fontSize: _labelFontSize,
-                        color: (_page == 1)
-                            ? UniversalVariables.lightBlueColor
-                            : Colors.grey),
-                  ),
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.contact_phone,
-                      color: (_page == 2)
-                          ? UniversalVariables.lightBlueColor
-                          : UniversalVariables.greyColor),
-                  title: Text(
-                    "Contacts",
-                    style: TextStyle(
-                        fontSize: _labelFontSize,
-                        color: (_page == 2)
-                            ? UniversalVariables.lightBlueColor
-                            : Colors.grey),
-                  ),
-                ),
-              ],
-              onTap: navigationTapped,
-              currentIndex: _page,
-            ),
+      scaffold: DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          appBar: AppBar(
+              backgroundColor: Colors.white,
+              title: TabBar(indicatorColor: Colors.transparent, tabs: [
+                Tab(
+                    icon: Icon(
+                  Icons.chat_bubble_outline,
+                  color: maincolor3,
+                )),
+                Tab(
+                    icon: Icon(
+                  Icons.call_outlined,
+                  color: maincolor3,
+                )),
+                Tab(
+                    icon: Icon(
+                  Icons.settings,
+                  color: maincolor3,
+                )),
+              ])),
+          body: TabBarView(
+            children: [ChatListScreen(), LogScreen(), ProfileView()],
           ),
         ),
       ),
