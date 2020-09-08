@@ -5,6 +5,7 @@ class Message {
   String receiverId;
   String type;
   String message;
+  String status;
   Timestamp timestamp;
   String photoUrl;
 
@@ -13,6 +14,7 @@ class Message {
     this.receiverId,
     this.type,
     this.message,
+    this.status,
     this.timestamp,
   });
 
@@ -23,6 +25,7 @@ class Message {
     this.receiverId,
     this.message,
     this.type,
+    this.status,
     this.timestamp,
     this.photoUrl,
   });
@@ -33,6 +36,7 @@ class Message {
     map['receiverId'] = this.receiverId;
     map['type'] = this.type;
     map['message'] = this.message;
+    map['status'] = this.status;
     map['timestamp'] = this.timestamp;
     return map;
   }
@@ -44,6 +48,7 @@ class Message {
     map['receiverId'] = this.receiverId;
     map['type'] = this.type;
     map['timestamp'] = this.timestamp;
+    map['status'] = this.status;
     map['photoUrl'] = this.photoUrl;
     return map;
   }
@@ -54,6 +59,7 @@ class Message {
     this.receiverId = map['receiverId'];
     this.type = map['type'];
     this.message = map['message'];
+    this.status = map['status'];
     this.timestamp = map['timestamp'];
     this.photoUrl = map['photoUrl'];
   }

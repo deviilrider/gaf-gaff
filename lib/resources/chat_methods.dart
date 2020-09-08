@@ -53,6 +53,40 @@ class ChatMethods {
         .add(map);
   }
 
+  Future<void> deleteMessageFromDb(
+      String uid, String receiverId, BuildContext context) async {
+    var delete = await _messageCollection
+        .document(uid)
+        .collection(receiverId)
+        .getDocuments()
+        .then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.documents) {
+        ds.reference.delete();
+      }
+    });
+
+    _userCollection
+        .document(uid)
+        .collection(CONTACTS_COLLECTION)
+        .document(receiverId)
+        .delete();
+
+    return delete;
+  }
+
+  Future<void> setMessageRead({String senderId, String receiverId}) async {
+    var setRead = await _messageCollection
+        .document(senderId)
+        .collection(receiverId)
+        .getDocuments()
+        .then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.documents) {
+        ds.reference.updateData({"status": 'read'});
+      }
+    });
+    return setRead;
+  }
+
   Future fetchUserFcmToken(String ownerUid) async {
     DocumentSnapshot snapshot =
         await Firestore.instance.collection("users").document(ownerUid).get();
@@ -124,6 +158,7 @@ class ChatMethods {
         receiverId: receiverId,
         senderId: senderId,
         photoUrl: url,
+        status: "unread",
         timestamp: Timestamp.now(),
         type: 'image');
 
@@ -155,5 +190,16 @@ class ChatMethods {
           .document(senderId)
           .collection(receiverId)
           .orderBy("timestamp")
+          .snapshots();
+
+  Stream<QuerySnapshot> fetchMessageSeenStatus({
+    @required String senderId,
+    @required String receiverId,
+  }) =>
+      _messageCollection
+          .document(senderId)
+          .collection(receiverId)
+          .orderBy("timestamp")
+          .where("senderId", isEqualTo: receiverId)
           .snapshots();
 }

@@ -115,6 +115,22 @@ class AuthMethods {
     return userList;
   }
 
+  Future<List<User>> fetchMyContacts(FirebaseUser currentUser) async {
+    List<User> mycontactList = List<User>();
+
+    QuerySnapshot querySnapshot = await firestore
+        .collection(USERS_COLLECTION)
+        .document(currentUser.uid)
+        .collection('addedContact')
+        .getDocuments();
+    for (var i = 0; i < querySnapshot.documents.length; i++) {
+      if (querySnapshot.documents[i].documentID != currentUser.uid) {
+        mycontactList.add(User.fromMap(querySnapshot.documents[i].data));
+      }
+    }
+    return mycontactList;
+  }
+
   Future<bool> signOut() async {
     try {
       await _googleSignIn.signOut();
@@ -131,19 +147,6 @@ class AuthMethods {
 
     _userCollection.document(userId).updateData({
       "state": stateNum,
-    });
-  }
-
-  //search user
-  searchUser(BuildContext context) async {
-    getCurrentUser().then((FirebaseUser user) {
-      fetchAllUsers(user).then((List<User> list) {
-        showSearch(
-            context: context,
-            delegate: UserSearch(
-              usersList: list,
-            ));
-      });
     });
   }
 

@@ -5,15 +5,14 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'user.dart';
 
-enum NotificationServices { POST, ARTICLE, MESSAGE, CALL }
+enum NotificationServices { POST, ARTICLE, MESSAGE, CALL, ADD }
 
 class FcmNotification {
   static const String serverKEY =
       // "AAAAyAeaKWM:APA91bGVcJsGdPYDoBSmEJH4shXFW3j-rMRt03RlPtVO_ZyBSNbtiyJIfNfr5ZcX00rAUuMV-d-pIGthbUtrSVRSdzVpqa1n24iyT0zP1CvA11VNqfoGrUuDWwZnKCxlDnDCaGX1U0GG";
       "AAAAeAkVGw0:APA91bFhW2kgFwhwYomOI-P5sLJ32AfFEPmptja8lmQ4rJOEh5nzYQ0G44bydnjxyvI-Qa1gqhzfWqksMsZ5x5gn8z5g57mXzr-uzStj3j0OEGqEh3WqmsOyVH_64fs0RJsSxS3HLtU8";
-  Future<void> fcmSendToCurrentUser(
-      String fcmToken, String title, String content,
-      {String type, String docID}) async {
+  Future<void> fcmSendToAddedUser(String fcmToken, String title, String content,
+      String addingUserId) async {
     var body = jsonEncode(<String, dynamic>{
       'notification': <String, dynamic>{
         'body': "$content",
@@ -24,9 +23,8 @@ class FcmNotification {
         'click_action': 'FLUTTER_NOTIFICATION_CLICK',
         'id': '1',
         'status': 'done',
-        'type': '$type',
-        'docid': '$docID',
-        'senderId': '1234',
+        'type': NotificationServices.ADD.toString(),
+        'senderId': '$addingUserId',
         'receiverId': '5678',
         'title': 'title',
         'body': "Say hello",
@@ -221,11 +219,15 @@ class FcmNotification {
         body: body);
   }
 
-  Future<void> fcmCallNotify(String fcmToken, String title, String message,
-      {User receiver, User caller}) async {
+  Future<void> fcmCallNotify(String fcmToken,
+      {String receiverId, BuildContext context}) async {
+    final UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: false);
+    var messageSend = "Incoming call.....";
+    var title = userProvider.getUser.name;
     var body = jsonEncode(<String, dynamic>{
       'notification': <String, dynamic>{
-        'body': "$message",
+        'body': "$messageSend",
         'title': "$title",
       },
       'priority': 'high',
@@ -234,9 +236,7 @@ class FcmNotification {
         'id': '1',
         'status': 'done',
         'type': NotificationServices.CALL.toString(),
-        'senderId': '1234',
-        'receiver': receiver,
-        'caller': caller,
+        'senderId': userProvider.getUser.uid,
         'title': 'title',
         'body': "Say hello",
         'tweetId': ""

@@ -6,7 +6,9 @@ import 'package:gafgaff/constants/colors.dart';
 import 'package:gafgaff/models/fcm.dart';
 import 'package:gafgaff/models/user.dart';
 import 'package:gafgaff/screens/Profile/profileview.dart';
+import 'package:gafgaff/screens/Profile/publicProfileView.dart';
 import 'package:gafgaff/screens/chatscreens/chat_screen.dart';
+import 'package:gafgaff/screens/pageviews/groups/group_list_view.dart';
 import 'package:provider/provider.dart';
 import 'package:gafgaff/enum/user_state.dart';
 import 'package:gafgaff/provider/user_provider.dart';
@@ -84,8 +86,30 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           // getting user instance
           User user = await _authMethods.getUserDetailsById(senderId);
           //redirecting
-          Navigator.of(context).push(MaterialPageRoute(
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
               builder: (context) => ChatScreen(
+                    receiver: user,
+                  )));
+        }
+        if (msg == NotificationServices.CALL.toString()) {
+          String senderId = message['data']['senderId'];
+
+          // getting user instance
+          User user = await _authMethods.getUserDetailsById(senderId);
+          //redirecting
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => ChatScreen(
+                    receiver: user,
+                  )));
+        }
+        if (msg == NotificationServices.ADD.toString()) {
+          String senderId = message['data']['senderId'];
+
+          // getting user instance
+          User user = await _authMethods.getUserDetailsById(senderId);
+          //redirecting
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => PublicProfileView(
                     receiver: user,
                   )));
         }
@@ -110,8 +134,30 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           // getting user instance
           User user = await _authMethods.getUserDetailsById(senderId);
           //redirecting
-          Navigator.of(context).push(MaterialPageRoute(
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
               builder: (context) => ChatScreen(
+                    receiver: user,
+                  )));
+        }
+        if (msg == NotificationServices.CALL.toString()) {
+          String senderId = message['data']['senderId'];
+
+          // getting user instance
+          User user = await _authMethods.getUserDetailsById(senderId);
+          //redirecting
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => ChatScreen(
+                    receiver: user,
+                  )));
+        }
+        if (msg == NotificationServices.ADD.toString()) {
+          String senderId = message['data']['senderId'];
+
+          // getting user instance
+          User user = await _authMethods.getUserDetailsById(senderId);
+          //redirecting
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => PublicProfileView(
                     receiver: user,
                   )));
         }
@@ -180,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return PickupLayout(
       scaffold: DefaultTabController(
-        length: 3,
+        length: 4,
         child: Scaffold(
           appBar: AppBar(
               backgroundColor: Colors.white,
@@ -188,6 +234,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 Tab(
                     icon: Icon(
                   Icons.chat_bubble_outline,
+                  color: maincolor3,
+                )),
+                Tab(
+                    icon: Icon(
+                  Icons.group,
                   color: maincolor3,
                 )),
                 Tab(
@@ -202,7 +253,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 )),
               ])),
           body: TabBarView(
-            children: [ChatListScreen(), LogScreen(), ProfileView()],
+            children: [
+              ChatListScreen(),
+              GroupChatScreen(),
+              LogScreen(),
+              ProfileView()
+            ],
           ),
         ),
       ),

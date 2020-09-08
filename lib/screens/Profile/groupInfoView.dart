@@ -1,10 +1,12 @@
 import 'dart:ui';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gafgaff/Constants/colors.dart';
 import 'package:gafgaff/Widgets/dialogs.dart';
-import 'package:gafgaff/models/user.dart';
+import 'package:gafgaff/models/group.dart';
 import 'package:gafgaff/provider/user_provider.dart';
+import 'package:gafgaff/screens/Profile/widgets/group_members_view.dart';
 import 'package:gafgaff/screens/callscreens/pickup/pickup_layout.dart';
 import 'package:gafgaff/utils/call_utilities.dart';
 import 'package:gafgaff/utils/permissions.dart';
@@ -13,10 +15,10 @@ import 'package:provider/provider.dart';
 
 import 'widgets/add_button.dart';
 
-class PublicProfileView extends StatelessWidget {
-  final User receiver;
+class GroupInfoView extends StatelessWidget {
+  final Group group;
 
-  PublicProfileView({this.receiver});
+  GroupInfoView({this.group});
 
   @override
   Widget build(BuildContext context) {
@@ -66,14 +68,14 @@ class PublicProfileView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(100)),
                 child: CircleAvatar(
                   radius: 50,
-                  child: receiver.profilePhoto != null
+                  child: group.groupProfilePhoto != null
                       ? Container(
                           height: 98,
                           width: 98,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(50),
                             image: DecorationImage(
-                                image: NetworkImage(receiver.profilePhoto)),
+                                image: NetworkImage(group.groupProfilePhoto)),
                           ),
                         )
                       : Icon(
@@ -87,21 +89,45 @@ class PublicProfileView extends StatelessWidget {
               ),
               // fetch user name
               Text(
-                receiver.name != null ? receiver.name : "Full Name",
+                group.groupName != null ? group.groupName : "Group Name",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               ),
+              StreamBuilder(
+                stream: Firestore.instance
+                    .collection('groups')
+                    .document(group.gid)
+                    .collection("members")
+                    .snapshots(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.data == null) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: snapshot.data.documents.length,
+                    itemBuilder: (context, index) {
+                      // mention the arrow syntax if you get the time
+                      return Text(
+                        "${snapshot.data.documents.length.toString()} members",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            fontSize: 12,
+                            color: Colors.black.withOpacity(0.6)),
+                      );
+                    },
+                  );
+                },
+              ),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircularButton(
                     onTap: userProvider.getUser.userRole == "pro"
                         ? () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => PublicProfileView(
-                                          receiver: receiver,
-                                        )));
+                            //TODO call in group
                           }
                         : () {
                             ALertDialogs().getErrorDialog(context,
@@ -115,19 +141,7 @@ class PublicProfileView extends StatelessWidget {
                   CircularButton(
                     onTap: userProvider.getUser.userRole == "pro"
                         ? () async {
-                            bool permission = await Permissions
-                                .cameraAndMicrophonePermissionsGranted();
-
-                            if (permission) {
-                              CallUtils().dial(
-                                  from: userProvider.getUser,
-                                  to: receiver,
-                                  context: context);
-                              // callNotification();
-                            } else {
-                              ALertDialogs().getErrorDialog(
-                                  context, 'No permission granted');
-                            }
+                            //TODO video call in group
                           }
                         : () {
                             ALertDialogs().getErrorDialog(context,
@@ -138,53 +152,69 @@ class PublicProfileView extends StatelessWidget {
                   SizedBox(
                     width: 10,
                   ),
-                  AddDeleteRequestButton(
-                    contactUser: receiver,
-                    currentUser: userProvider.getUser,
-                    tile: true,
-                  ),
+                  // AddDeleteRequestButton(
+                  //   contactUser: receiver,
+                  //   currentUser: userProvider.getUser,
+                  //   tile: true,
+                  // ),
                 ],
               ),
               Divider(),
-              AddDeleteRequestButton(
-                contactUser: receiver,
-                currentUser: userProvider.getUser,
+              // AddDeleteRequestButton(
+              //   contactUser: receiver,
+              //   currentUser: userProvider.getUser,
+              // ),
+              ListTile(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => GroupMemberViewPage(
+                                group: group,
+                              )));
+                },
+                title: Text('View All Members'),
+                leading: CircleAvatar(child: Icon(Icons.remove_red_eye)),
               ),
+              ListTile(
+                onTap: () {
+                  ALertDialogs()
+                    ..getErrorDialog(context, 'Features Coming Soon');
+                },
+                title: Text('Add Members'),
+                leading: CircleAvatar(child: Icon(Icons.person_add_alt)),
+              ),
+              Divider(),
               ListTile(
                 onTap: () {
                   ALertDialogs()
                     ..getErrorDialog(context, 'Features Coming Soon');
                 },
                 title: Text('Search In Conversation'),
-                leading: CircleAvatar(child: Icon(Icons.block)),
+                leading: CircleAvatar(child: Icon(Icons.search)),
               ),
+
+              Divider(),
               ListTile(
                 onTap: () {
-                  ALertDialogs()
-                    ..deleteConversation(
-                        context, userProvider.getUser.uid, receiver.uid);
+                  // ALertDialogs()
+                  //   ..deleteConversation(
+                  //       context, userProvider.getUser.uid, receiver.uid);
                 },
-                title: Text('Delete All Conversation'),
+                title: Text('Delete and Leave Group'),
                 leading: CircleAvatar(child: Icon(Icons.delete_forever)),
               ),
               // AddPeopleTile(
               //   currentUserId: uid,
               //   followingUserId: widget.peerId,
               // ),
+
               ListTile(
                 onTap: () {
                   ALertDialogs()
                     ..getErrorDialog(context, 'Features Coming Soon');
                 },
-                title: Text('Blocked Users'),
-                leading: CircleAvatar(child: Icon(Icons.block)),
-              ),
-              ListTile(
-                onTap: () {
-                  ALertDialogs()
-                    ..getErrorDialog(context, 'Features Coming Soon');
-                },
-                title: Text('Report Users'),
+                title: Text('Report Group'),
                 leading: CircleAvatar(child: Icon(Icons.report)),
               ),
             ],

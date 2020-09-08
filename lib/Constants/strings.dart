@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 const String MESSAGES_COLLECTION = "messages";
+const String GROUP_COLLECTION = "groups";
 const String USERS_COLLECTION = "users";
 const String CALL_COLLECTION = "call";
 const String CONTACTS_COLLECTION = "contacts";

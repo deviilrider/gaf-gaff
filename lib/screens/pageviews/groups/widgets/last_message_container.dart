@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gafgaff/models/message.dart';
+import 'package:gafgaff/models/user.dart';
 import 'package:gafgaff/provider/user_provider.dart';
+import 'package:gafgaff/resources/auth_methods.dart';
 import 'package:provider/provider.dart';
 
 class LastMessageContainer extends StatelessWidget {

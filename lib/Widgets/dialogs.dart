@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gafgaff/constants/strings.dart';
+import 'package:gafgaff/resources/chat_methods.dart';
 
 class Dialogs {
   Future<void> getDialog(BuildContext context) async {
@@ -199,7 +200,7 @@ class ALertDialogs {
                     width: 10,
                   ),
                   Text(
-                    "Do you want to delete your account?",
+                    "Do you want to delete conversation?",
                     maxLines: 3,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.blueAccent),
@@ -210,11 +211,66 @@ class ALertDialogs {
                   children: [
                     FlatButton(
                         onPressed: () {
+                          ChatMethods()
+                              .deleteMessageFromDb(uid, receiverId, context);
                           Dialogs()..getDialog(context);
-                          // AuthServices()
-                          // ..deleteConversation(uid, receiverId, context);
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                          Navigator.pop(context);
                         },
                         child: Text('Yes')),
+                    FlatButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('No')),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> responsiveDialog(
+      BuildContext context, String title, Function onTapYes) async {
+    return showDialog(
+      context: context,
+      child: SimpleDialog(
+        // useMaterialBorderRadius: true,
+        key: keyContext,
+        backgroundColor: Colors.white,
+        children: [
+          Center(
+            child: Column(
+              children: [
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      Icon(
+                        Icons.delete_forever,
+                        color: Colors.red,
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    title,
+                    maxLines: 3,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.blueAccent),
+                  )
+                ]),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    FlatButton(onPressed: onTapYes, child: Text('Yes')),
                     FlatButton(
                         onPressed: () {
                           Navigator.pop(context);
@@ -239,21 +295,19 @@ class ALertDialogs {
         backgroundColor: Colors.white,
         children: [
           Center(
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Stack(
-                alignment: Alignment.center,
-                children: <Widget>[
-                  Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                  )
-                ],
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(
+                Icons.check_circle,
+                color: Colors.green,
               ),
               SizedBox(
                 width: 10,
               ),
               Text(
                 text,
+                textAlign: TextAlign.center,
+                maxLines: 5,
                 style: TextStyle(color: Colors.blueAccent),
               )
             ]),
@@ -272,7 +326,8 @@ class ALertDialogs {
         backgroundColor: Colors.white,
         children: [
           Center(
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               Icon(
                 Icons.error_outline,
                 color: Colors.red,
@@ -282,6 +337,8 @@ class ALertDialogs {
               ),
               Text(
                 text,
+                textAlign: TextAlign.center,
+                maxLines: 5,
                 style: TextStyle(color: Colors.blueAccent),
               )
             ]),

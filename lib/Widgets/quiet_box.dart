@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gafgaff/resources/auth_methods.dart';
+import 'package:gafgaff/resources/contacts_methods.dart';
 import 'package:gafgaff/utils/universal_variables.dart';
 
 class QuiteBox extends StatelessWidget {
@@ -38,7 +39,7 @@ class QuiteBox extends StatelessWidget {
                   color: UniversalVariables.lightBlueColor,
                   child: Text("START SEARCHING"),
                   onPressed: () {
-                    AuthMethods()..searchUser(context);
+                    ContactMethods()..searchUser(context);
                   }),
             ],
           ),

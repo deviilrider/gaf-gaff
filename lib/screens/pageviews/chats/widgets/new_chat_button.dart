@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gafgaff/resources/auth_methods.dart';
+import 'package:gafgaff/resources/contacts_methods.dart';
 import 'package:gafgaff/utils/universal_variables.dart';
 
 class NewChatButton extends StatelessWidget {
@@ -7,7 +8,7 @@ class NewChatButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        AuthMethods().searchUser(context);
+        ContactMethods()..searchUser(context);
       },
       child: Container(
         decoration: BoxDecoration(

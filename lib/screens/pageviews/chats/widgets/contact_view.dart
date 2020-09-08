@@ -10,6 +10,7 @@ import 'package:gafgaff/screens/chatscreens/widgets/cached_image.dart';
 import 'package:gafgaff/widgets/custom_tile.dart';
 
 import 'last_message_container.dart';
+import 'messageseenstatus.dart';
 import 'online_dot_indicator.dart';
 
 class ContactView extends StatelessWidget {
@@ -53,18 +54,30 @@ class ViewLayout extends StatelessWidget {
     return CustomTile(
       margin: EdgeInsets.only(bottom: 10),
       mini: false,
-      onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatScreen(
-              receiver: contact,
-            ),
-          )),
+      onTap: () {
+        ChatMethods().setMessageRead(
+          senderId: userProvider.getUser.uid,
+          receiverId: contact.uid,
+        );
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatScreen(
+                receiver: contact,
+              ),
+            ));
+      },
       title: Text(
         (contact != null ? contact.name : null) != null ? contact.name : "..",
       ),
       subtitle: LastMessageContainer(
         stream: _chatMethods.fetchLastMessageBetween(
+          senderId: userProvider.getUser.uid,
+          receiverId: contact.uid,
+        ),
+      ),
+      trailing: MessageReadUnreadStatus(
+        stream: _chatMethods.fetchMessageSeenStatus(
           senderId: userProvider.getUser.uid,
           receiverId: contact.uid,
         ),

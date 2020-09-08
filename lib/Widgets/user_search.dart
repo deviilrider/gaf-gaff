@@ -8,7 +8,8 @@ import 'custom_tile.dart';
 
 class UserSearch extends SearchDelegate<String> {
   List<User> usersList;
-  UserSearch({this.usersList});
+  List<User> mycontactList;
+  UserSearch({this.usersList, this.mycontactList});
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -43,14 +44,11 @@ class UserSearch extends SearchDelegate<String> {
   @override
   Widget buildSuggestions(BuildContext context) {
     final List<User> suggestionsList = query.isEmpty
-        ? usersList
-        : usersList.where((p) => p.name.startsWith(query)).toList();
+        ? mycontactList
+        : usersList.where((p) => p.name.contains(query)).toList();
     return ListView.builder(
-        itemCount: suggestionsList.length,
+        itemCount: suggestionsList.length != null ? suggestionsList.length : 0,
         itemBuilder: ((context, index) {
-          var url = suggestionsList[index].profilePhoto != null
-              ? suggestionsList[index].profilePhoto
-              : "https://image.flaticon.com/icons/png/512/16/16363.png";
           return CustomTile(
             mini: false,
             onTap: () {
@@ -66,10 +64,6 @@ class UserSearch extends SearchDelegate<String> {
               radius: 25,
               isRound: true,
             ),
-            // leading: CircleAvatar(
-            //   backgroundImage: NetworkImage(searchedUser.profilePhoto),
-            //   backgroundColor: Colors.grey,
-            // ),
             title: Text(
               suggestionsList[index].username,
               style: TextStyle(

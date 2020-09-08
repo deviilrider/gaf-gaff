@@ -4,6 +4,7 @@ class User {
   String email;
   String username;
   String status;
+  String userRole;
   int state;
   String profilePhoto;
   String fcmToken;
@@ -14,6 +15,7 @@ class User {
       this.email,
       this.username,
       this.status,
+      this.userRole,
       this.state,
       this.profilePhoto,
       this.fcmToken});
@@ -25,6 +27,7 @@ class User {
     data['email'] = user.email;
     data['username'] = user.username;
     data["status"] = user.status;
+    data["userRole"] = user.userRole;
     data["state"] = user.state;
     data["profile_photo"] = user.profilePhoto;
     data["fcmToken"] = user.fcmToken;
@@ -38,6 +41,7 @@ class User {
     this.email = mapData['email'];
     this.username = mapData['username'];
     this.status = mapData['status'];
+    this.userRole = mapData['userRole'];
     this.state = mapData['state'];
     this.profilePhoto = mapData['profile_photo'];
     this.fcmToken = mapData['fcmToken'];

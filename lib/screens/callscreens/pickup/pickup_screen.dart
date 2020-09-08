@@ -7,6 +7,7 @@ import 'package:gafgaff/resources/local_db/repository/log_repository.dart';
 import 'package:gafgaff/screens/callscreens/call_screen.dart';
 import 'package:gafgaff/screens/chatscreens/widgets/cached_image.dart';
 import 'package:gafgaff/utils/permissions.dart';
+import 'package:gafgaff/widgets/circular_button.dart';
 
 class PickupScreen extends StatefulWidget {
   final Call call;
@@ -49,6 +50,7 @@ class _PickupScreenState extends State<PickupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     return Scaffold(
       body: Container(
         alignment: Alignment.center,
@@ -57,55 +59,58 @@ class _PickupScreenState extends State<PickupScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              "Incoming...",
+              "Incoming Call...",
               style: TextStyle(
-                fontSize: 30,
+                fontSize: 20,
               ),
             ),
-            SizedBox(height: 50),
+            SizedBox(height: size.height * 0.1),
             CachedImage(
               widget.call.callerPic,
               isRound: true,
-              radius: 180,
+              radius: 100,
             ),
-            SizedBox(height: 15),
+            SizedBox(height: 20),
             Text(
-              widget.call.callerName,
+              widget.call.callerName.toUpperCase(),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
               ),
             ),
-            SizedBox(height: 75),
+            SizedBox(height: size.height * 0.25),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.call_end),
-                  color: Colors.redAccent,
-                  onPressed: () async {
+                CircularButton(
+                  onTap: () async {
                     isCallMissed = false;
                     addToLocalStorage(callStatus: CALL_STATUS_RECEIVED);
                     await callMethods.endCall(call: widget.call);
                   },
+                  size: 40,
+                  icon: Icons.call_end,
+                  iconColor: Colors.redAccent,
                 ),
                 SizedBox(width: 25),
-                IconButton(
-                    icon: Icon(Icons.call),
-                    color: Colors.green,
-                    onPressed: () async {
-                      isCallMissed = false;
-                      addToLocalStorage(callStatus: CALL_STATUS_RECEIVED);
-                      await Permissions.cameraAndMicrophonePermissionsGranted()
-                          ? Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    CallScreen(call: widget.call),
-                              ),
-                            )
-                          : {};
-                    }),
+                CircularButton(
+                  onTap: () async {
+                    isCallMissed = false;
+                    addToLocalStorage(callStatus: CALL_STATUS_RECEIVED);
+                    await Permissions.cameraAndMicrophonePermissionsGranted()
+                        ? Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  CallScreen(call: widget.call),
+                            ),
+                          )
+                        : {};
+                  },
+                  size: 40,
+                  icon: Icons.call,
+                  iconColor: Colors.green,
+                ),
               ],
             ),
           ],

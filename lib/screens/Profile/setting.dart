@@ -6,6 +6,7 @@ import 'package:gafgaff/enum/user_state.dart';
 import 'package:gafgaff/provider/theme_provider.dart';
 import 'package:gafgaff/provider/user_provider.dart';
 import 'package:gafgaff/resources/auth_methods.dart';
+import 'package:gafgaff/screens/contacts/findFriends.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -84,6 +85,16 @@ class _SettingListViewState extends State<SettingListView> {
             },
             title: Text('Notifications'),
             leading: CircleAvatar(child: Icon(Icons.notifications)),
+          ),
+          ListTile(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => FindFriendPageView()));
+            },
+            title: Text('Find Contacts'),
+            leading: CircleAvatar(child: Icon(Icons.person_add)),
           ),
           Divider(),
           Container(

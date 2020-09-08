@@ -7,13 +7,15 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:gafgaff/constants/colors.dart';
+import 'package:gafgaff/models/group.dart';
 import 'package:gafgaff/provider/user_provider.dart';
+import 'package:gafgaff/resources/group_chat_methods.dart';
+import 'package:gafgaff/screens/Profile/groupInfoView.dart';
 import 'package:gafgaff/screens/Profile/publicProfileView.dart';
 import 'package:gafgaff/screens/pageviews/chats/widgets/new_chat_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:gafgaff/widgets/dialogs.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:gafgaff/constants/strings.dart';
 import 'package:gafgaff/enum/view_state.dart';
@@ -24,7 +26,7 @@ import 'package:gafgaff/resources/auth_methods.dart';
 import 'package:gafgaff/resources/chat_methods.dart';
 import 'package:gafgaff/resources/storage_methods.dart';
 import 'package:gafgaff/screens/callscreens/pickup/pickup_layout.dart';
-import 'package:gafgaff/screens/chatscreens/widgets/cached_image.dart';
+import 'widgets/cached_image.dart';
 import 'package:gafgaff/utils/call_utilities.dart';
 import 'package:gafgaff/utils/permissions.dart';
 import 'package:gafgaff/utils/universal_variables.dart';
@@ -32,20 +34,20 @@ import 'package:gafgaff/utils/utilities.dart';
 import 'package:gafgaff/widgets/appbar.dart';
 import 'package:gafgaff/widgets/custom_tile.dart';
 
-class ChatScreen extends StatefulWidget {
-  final User receiver;
+class GroupChat extends StatefulWidget {
+  final Group group;
 
-  ChatScreen({this.receiver});
+  GroupChat({this.group});
 
   @override
-  _ChatScreenState createState() => _ChatScreenState();
+  _GroupChatState createState() => _GroupChatState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _GroupChatState extends State<GroupChat> {
   ImageUploadProvider _imageUploadProvider;
 
   final StorageMethods _storageMethods = StorageMethods();
-  final ChatMethods _chatMethods = ChatMethods();
+  final GroupChatMethods _groupChatMethods = GroupChatMethods();
   final AuthMethods _authMethods = AuthMethods();
 
   TextEditingController textFieldController = TextEditingController();
@@ -140,25 +142,25 @@ class _ChatScreenState extends State<ChatScreen> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => PublicProfileView(
-                                receiver: widget.receiver,
+                          builder: (context) => GroupInfoView(
+                                group: widget.group,
                               )));
                 },
                 child: CircleAvatar(
                   radius: 15,
-                  child: widget.receiver.profilePhoto != null
+                  child: widget.group.groupProfilePhoto != null
                       ? Container(
                           height: 30,
                           width: 30,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(50),
                             image: DecorationImage(
-                                image:
-                                    NetworkImage(widget.receiver.profilePhoto)),
+                                image: NetworkImage(
+                                    widget.group.groupProfilePhoto)),
                           ),
                         )
                       : Icon(
-                          Icons.person,
+                          Icons.group,
                           size: 10,
                         ),
                 ),
@@ -171,12 +173,12 @@ class _ChatScreenState extends State<ChatScreen> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => PublicProfileView(
-                                receiver: widget.receiver,
+                          builder: (context) => GroupInfoView(
+                                group: widget.group,
                               )));
                 },
                 child: Text(
-                  widget.receiver.name != null ? widget.receiver.name : "",
+                  widget.group.groupName != null ? widget.group.groupName : "",
                   style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 15,
@@ -192,49 +194,6 @@ class _ChatScreenState extends State<ChatScreen> {
           actions: [
             IconButton(
                 icon: Icon(
-                  Icons.phone_in_talk,
-                  color: Colors.blue,
-                ),
-                onPressed: userProvider.getUser.userRole == "pro"
-                    ? () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => PublicProfileView(
-                                      receiver: widget.receiver,
-                                    )));
-                      }
-                    : () {
-                        ALertDialogs().getErrorDialog(context,
-                            'This feature is available for pro user only. Contact Admin');
-                      }),
-            IconButton(
-                icon: Icon(
-                  Icons.videocam,
-                  color: Colors.blue,
-                ),
-                onPressed: userProvider.getUser.userRole == "pro"
-                    ? () async {
-                        bool permission = await Permissions
-                            .cameraAndMicrophonePermissionsGranted();
-
-                        if (permission) {
-                          CallUtils().dial(
-                              from: sender,
-                              to: widget.receiver,
-                              context: context);
-                          // callNotification();
-                        } else {
-                          ALertDialogs()
-                              .getErrorDialog(context, 'No permission granted');
-                        }
-                      }
-                    : () {
-                        ALertDialogs().getErrorDialog(context,
-                            'This feature is available for pro user only. Contact Admin');
-                      }),
-            IconButton(
-                icon: Icon(
                   Icons.info,
                   color: Colors.blue,
                 ),
@@ -242,8 +201,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => PublicProfileView(
-                                receiver: widget.receiver,
+                          builder: (context) => GroupInfoView(
+                                group: widget.group,
                               )));
                 })
           ],
@@ -302,9 +261,9 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget messageList() {
     return StreamBuilder(
       stream: Firestore.instance
+          .collection("groups")
+          .document(widget.group.gid)
           .collection(MESSAGES_COLLECTION)
-          .document(_currentUserId)
-          .collection(widget.receiver.uid)
           .orderBy(TIMESTAMP_FIELD, descending: true)
           .limit(_limit)
           .snapshots(),
@@ -430,39 +389,8 @@ class _ChatScreenState extends State<ChatScreen> {
           children: <Widget>[
             Row(
               children: <Widget>[
-                isLastMessageLeft(index, user.uid)
-                    ? GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => PublicProfileView(
-                                        receiver: widget.receiver,
-                                      )));
-                        },
-                        child: Material(
-                          child: CachedNetworkImage(
-                            placeholder: (context, url) => Container(
-                              child: CircularProgressIndicator(
-                                strokeWidth: 1.0,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(maincolor2),
-                              ),
-                              width: 35.0,
-                              height: 35.0,
-                              padding: EdgeInsets.all(10.0),
-                            ),
-                            imageUrl: widget.receiver.profilePhoto,
-                            width: 35.0,
-                            height: 35.0,
-                            fit: BoxFit.cover,
-                          ),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(18.0),
-                          ),
-                          clipBehavior: Clip.hardEdge,
-                        ),
-                      )
+                isLastMessageLeft(index, _message.senderId)
+                    ? getGroupMessageSender(senderId: _message.senderId)
                     : Container(width: 35.0),
                 _message.type == 'text'
                     ? Container(
@@ -599,6 +527,60 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  getGroupMessageSender({String senderId}) {
+    return StreamBuilder(
+      stream: Firestore.instance
+          .collection("users")
+          .where("uid", isEqualTo: senderId)
+          .snapshots(),
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.data == null) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        return ListView.builder(
+          itemCount: snapshot.data.documents.length,
+          itemBuilder: (context, index) {
+            DocumentSnapshot userData = snapshot.data.documents[index];
+            User user = User.fromMap(userData.data);
+            // mention the arrow syntax if you get the time
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PublicProfileView(
+                              receiver: user,
+                            )));
+              },
+              child: Material(
+                child: CachedNetworkImage(
+                  placeholder: (context, url) => Container(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1.0,
+                      valueColor: AlwaysStoppedAnimation<Color>(maincolor2),
+                    ),
+                    width: 35.0,
+                    height: 35.0,
+                    padding: EdgeInsets.all(10.0),
+                  ),
+                  imageUrl: user.profilePhoto,
+                  width: 35.0,
+                  height: 35.0,
+                  fit: BoxFit.cover,
+                ),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(18.0),
+                ),
+                clipBehavior: Clip.hardEdge,
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget chatControls() {
     setWritingTo(bool val) {
       setState(() {
@@ -687,7 +669,7 @@ class _ChatScreenState extends State<ChatScreen> {
       var text = textFieldController.text;
 
       Message _message = Message(
-        receiverId: widget.receiver.uid,
+        receiverId: widget.group.gid,
         senderId: sender.uid,
         message: text,
         status: "unread",
@@ -701,7 +683,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       textFieldController.text = "";
 
-      _chatMethods.addMessageToDb(_message, context);
+      GroupChatMethods().addMessageToDb(_message, context);
     }
 
     return Container(
@@ -843,8 +825,7 @@ class _ChatScreenState extends State<ChatScreen> {
     storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
       imageUrl = downloadUrl;
       setState(() {
-        ChatMethods()
-            .setImageMsg(imageUrl, widget.receiver.uid, _currentUserId);
+        ChatMethods().setImageMsg(imageUrl, widget.group.gid, _currentUserId);
         // onSendMessage(imageUrl, 1);
       });
     }, onError: (err) {
@@ -857,7 +838,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     _storageMethods.uploadImage(
         image: selectedImage,
-        receiverId: widget.receiver.uid,
+        receiverId: widget.group.gid,
         senderId: _currentUserId,
         imageUploadProvider: _imageUploadProvider);
   }
