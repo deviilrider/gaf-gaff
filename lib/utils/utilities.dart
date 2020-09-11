@@ -70,4 +70,13 @@ class Utils {
     var formatter = DateFormat('dd/MM/yy');
     return formatter.format(dateTime);
   }
+
+  static String getDateTime(DateTime timestamp) {
+    var databaseTime = timestamp;
+    var time = databaseTime.toString();
+    String dateFormate =
+        DateFormat(" hh:mm a, dd MMM").format(DateTime.parse(time));
+
+    return dateFormate;
+  }
 }

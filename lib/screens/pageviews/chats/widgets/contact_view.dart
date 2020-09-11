@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gafgaff/widgets/dialogs.dart';
 import 'package:provider/provider.dart';
 import 'package:gafgaff/models/contact.dart';
 import 'package:gafgaff/models/user.dart';
@@ -51,22 +52,22 @@ class ViewLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final UserProvider userProvider = Provider.of<UserProvider>(context);
 
-    return CustomTile(
-      margin: EdgeInsets.only(bottom: 10),
-      mini: false,
-      onTap: () {
-        ChatMethods().setMessageRead(
-          senderId: userProvider.getUser.uid,
-          receiverId: contact.uid,
-        );
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ChatScreen(
-                receiver: contact,
-              ),
-            ));
-      },
+    return ListTile(
+      leading: Container(
+        constraints: BoxConstraints(maxHeight: 50, maxWidth: 50),
+        child: Stack(
+          children: <Widget>[
+            CachedImage(
+              contact.profilePhoto,
+              radius: 50,
+              isRound: true,
+            ),
+            OnlineDotIndicator(
+              uid: contact.uid,
+            ),
+          ],
+        ),
+      ),
       title: Text(
         (contact != null ? contact.name : null) != null ? contact.name : "..",
       ),
@@ -82,21 +83,20 @@ class ViewLayout extends StatelessWidget {
           receiverId: contact.uid,
         ),
       ),
-      leading: Container(
-        constraints: BoxConstraints(maxHeight: 60, maxWidth: 60),
-        child: Stack(
-          children: <Widget>[
-            CachedImage(
-              contact.profilePhoto,
-              radius: 80,
-              isRound: true,
-            ),
-            OnlineDotIndicator(
-              uid: contact.uid,
-            ),
-          ],
-        ),
-      ),
+      onTap: () {
+        ChatMethods().setMessageRead(
+          senderId: userProvider.getUser.uid,
+          receiverId: contact.uid,
+        );
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatScreen(
+                receiver: contact,
+              ),
+            ));
+      },
+      onLongPress: () => ALertDialogs().showMessageOptions(context, contact),
     );
   }
 }

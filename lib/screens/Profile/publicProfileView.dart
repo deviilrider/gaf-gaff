@@ -5,6 +5,7 @@ import 'package:gafgaff/Constants/colors.dart';
 import 'package:gafgaff/Widgets/dialogs.dart';
 import 'package:gafgaff/models/user.dart';
 import 'package:gafgaff/provider/user_provider.dart';
+import 'package:gafgaff/resources/chat_methods.dart';
 import 'package:gafgaff/screens/callscreens/pickup/pickup_layout.dart';
 import 'package:gafgaff/utils/call_utilities.dart';
 import 'package:gafgaff/utils/permissions.dart';
@@ -154,9 +155,10 @@ class PublicProfileView extends StatelessWidget {
                 onTap: () {
                   ALertDialogs()
                     ..getErrorDialog(context, 'Features Coming Soon');
+                  // ChatMethods().searchMessage(context, receiver.uid);
                 },
                 title: Text('Search In Conversation'),
-                leading: CircleAvatar(child: Icon(Icons.block)),
+                leading: CircleAvatar(child: Icon(Icons.search)),
               ),
               ListTile(
                 onTap: () {

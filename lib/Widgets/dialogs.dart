@@ -2,7 +2,11 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gafgaff/constants/strings.dart';
+import 'package:gafgaff/models/user.dart';
+import 'package:gafgaff/provider/user_provider.dart';
 import 'package:gafgaff/resources/chat_methods.dart';
+import 'package:gafgaff/utils/universal_variables.dart';
+import 'package:provider/provider.dart';
 
 class Dialogs {
   Future<void> getDialog(BuildContext context) async {
@@ -212,12 +216,11 @@ class ALertDialogs {
                     FlatButton(
                         onPressed: () {
                           ChatMethods()
-                              .deleteMessageFromDb(uid, receiverId, context);
-                          Dialogs()..getDialog(context);
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-                          Navigator.pop(context);
+                              .deleteMessageFromDb(uid, receiverId, context)
+                              .whenComplete(() {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          });
                         },
                         child: Text('Yes')),
                     FlatButton(
@@ -345,6 +348,154 @@ class ALertDialogs {
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> showMessageOptions(BuildContext context, User receiver) async {
+    final UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: false);
+    return showModalBottomSheet(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0)),
+      ),
+      context: context,
+      builder: (BuildContext context) {
+        return ListView(
+          physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          children: [
+            // * mark as unread
+            Container(
+              margin: EdgeInsets.all(0),
+              child: InkWell(
+                onTap: () async {
+                  // // *
+                  ChatMethods()
+                      .markMessageAsUnread(
+                          senderId: userProvider.getUser.uid,
+                          receiverId: receiver.uid)
+                      .then((value) {
+                    Navigator.pop(context);
+                  });
+                },
+                child: Container(
+                  padding: EdgeInsets.all(2),
+                  margin: EdgeInsets.all(0.0),
+                  child: ListTile(
+                    leading: Text(
+                      "Mark as unread",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                    trailing: Container(
+                      width: 35,
+                      height: 35,
+                      decoration: BoxDecoration(
+                          color: Colors.deepPurple[200],
+                          shape: BoxShape.circle),
+                      child: Center(
+                        child: Icon(
+                          Icons.mark_as_unread,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // * DELETING CONVERSATION
+            Container(
+              padding: EdgeInsets.all(2),
+              child: InkWell(
+                onTap: () {
+                  ALertDialogs()
+                    ..deleteConversation(
+                        context, userProvider.getUser.uid, receiver.uid);
+                },
+                child: Container(
+                  margin: EdgeInsets.all(0.0),
+                  child: ListTile(
+                    leading: Text(
+                      "Delete Conversation",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                    trailing: Container(
+                      width: 35,
+                      height: 35,
+                      decoration: BoxDecoration(
+                          color: Colors.deepPurple[200],
+                          shape: BoxShape.circle),
+                      child: Center(
+                        child: Icon(
+                          Icons.delete,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // * ARCHIVE CONVERSATION
+            Container(
+              margin: EdgeInsets.all(0),
+              child: InkWell(
+                onTap: () async {
+                  // // *
+                  // // * ARCHIVE CONVERSATION (BOOLEAN)😋😎
+                  // _firestore
+                  //     .collection("users")
+                  //     .document(currentUser.uid)
+                  //     .collection("message")
+                  //     .document(receiverUid)
+                  //     .updateData({"isarchived": true}).then((value) {
+                  //   print("updated");
+                  // });
+
+                  // // * DELETING USER FROM LIST
+                  // setState(() {
+                  //   messageUsersList.remove(messageUsersList[index]);
+                  // });
+                  // Navigator.of(context).pop();
+                },
+                child: Container(
+                  padding: EdgeInsets.all(2),
+                  margin: EdgeInsets.all(0.0),
+                  child: ListTile(
+                    leading: Text(
+                      "Archive Conversation",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                    trailing: Container(
+                      width: 35,
+                      height: 35,
+                      decoration: BoxDecoration(
+                          color: Colors.deepPurple[200],
+                          shape: BoxShape.circle),
+                      child: Center(
+                        child: Icon(
+                          Icons.archive,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

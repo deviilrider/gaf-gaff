@@ -10,6 +10,8 @@ import 'package:gafgaff/constants/colors.dart';
 import 'package:gafgaff/provider/user_provider.dart';
 import 'package:gafgaff/screens/Profile/publicProfileView.dart';
 import 'package:gafgaff/screens/pageviews/chats/widgets/new_chat_button.dart';
+import 'package:gafgaff/widgets/image_view.dart';
+import 'package:gafgaff/widgets/video_view.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:gafgaff/widgets/dialogs.dart';
 import 'package:image_picker/image_picker.dart';
@@ -57,7 +59,9 @@ class _ChatScreenState extends State<ChatScreen> {
   final int _limitIncrement = 20;
 
   File imageFile;
+  File videoFile;
   String imageUrl;
+  String videoUrl;
 
   User sender;
   String _currentUserId;
@@ -408,18 +412,54 @@ class _ChatScreenState extends State<ChatScreen> {
                           right: 10.0),
                     )
                   // Sticker
-                  : Container(
-                      child: Image.asset(
-                        'assets/images/emojis/child/${_message.message}.gif',
-                        width: 100.0,
-                        height: 100.0,
-                        fit: BoxFit.cover,
-                      ),
-                      margin: EdgeInsets.only(
-                          bottom:
-                              isLastMessageRight(index, user.uid) ? 20.0 : 10.0,
-                          right: 10.0),
-                    ),
+                  : _message.type == 'video'
+                      // video
+                      ? GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => VideoViewer(
+                                        videoFile: _message.photoUrl)));
+                          },
+                          child: Container(
+                            child: Row(
+                              children: [
+                                Icon(Icons.play_circle_filled),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                  _message.message,
+                                ),
+                              ],
+                            ),
+                            padding:
+                                EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+                            width: 200.0,
+                            decoration: BoxDecoration(
+                                color: greyColor2,
+                                borderRadius: BorderRadius.circular(8.0)),
+                            margin: EdgeInsets.only(
+                                bottom: isLastMessageRight(index, user.uid)
+                                    ? 20.0
+                                    : 10.0,
+                                right: 10.0),
+                          ),
+                        )
+                      : Container(
+                          child: Image.asset(
+                            'assets/images/emojis/child/${_message.message}.gif',
+                            width: 100.0,
+                            height: 100.0,
+                            fit: BoxFit.cover,
+                          ),
+                          margin: EdgeInsets.only(
+                              bottom: isLastMessageRight(index, user.uid)
+                                  ? 20.0
+                                  : 10.0,
+                              right: 10.0),
+                        ),
         ],
         mainAxisAlignment: MainAxisAlignment.end,
       );
@@ -525,42 +565,76 @@ class _ChatScreenState extends State<ChatScreen> {
                                 clipBehavior: Clip.hardEdge,
                               ),
                               onPressed: () {
-                                Dialogs()
-                                  ..imagePopup(context, _message.photoUrl);
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => ImageViewer(
+                                            imageFile: _message.photoUrl)));
                               },
                               padding: EdgeInsets.all(0),
                             ),
                             margin: EdgeInsets.only(left: 10.0),
                           )
-                        : Container(
-                            child: Image.asset(
-                              'assets/images/emojis/child/${_message.message}.gif',
-                              width: 100.0,
-                              height: 100.0,
-                              fit: BoxFit.cover,
-                            ),
-                            margin: EdgeInsets.only(
-                                bottom: isLastMessageRight(index, user.uid)
-                                    ? 20.0
-                                    : 10.0,
-                                right: 10.0),
-                          ),
+                        : _message.type == 'video'
+                            ? GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => VideoViewer(
+                                              videoFile: _message.photoUrl)));
+                                },
+                                child: Container(
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.play_circle_filled),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Text(
+                                        _message.message,
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ],
+                                  ),
+                                  padding: EdgeInsets.fromLTRB(
+                                      15.0, 10.0, 15.0, 10.0),
+                                  width: 200.0,
+                                  decoration: BoxDecoration(
+                                      color: maincolor1,
+                                      borderRadius: BorderRadius.circular(8.0)),
+                                  margin: EdgeInsets.only(left: 10.0),
+                                ),
+                              )
+                            : Container(
+                                child: Image.asset(
+                                  'assets/images/emojis/child/${_message.message}.gif',
+                                  width: 100.0,
+                                  height: 100.0,
+                                  fit: BoxFit.cover,
+                                ),
+                                margin: EdgeInsets.only(
+                                    bottom: isLastMessageRight(index, user.uid)
+                                        ? 20.0
+                                        : 10.0,
+                                    right: 10.0),
+                              ),
               ],
             ),
 
             // Time
-            // isLastMessageLeft(index, user.uid)
-            //     ? Container(
-            //         child: Text(
-            //           Utils.formatDateString(_message.timestamp.toString()),
-            //           style: TextStyle(
-            //               color: Colors.grey,
-            //               fontSize: 12.0,
-            //               fontStyle: FontStyle.italic),
-            //         ),
-            //         margin: EdgeInsets.only(left: 50.0, top: 5.0, bottom: 5.0),
-            //       )
-            //     : Container()
+            isLastMessageLeft(index, user.uid)
+                ? Container(
+                    child: Text(
+                      Utils.getDateTime(_message.timestamp.toDate()),
+                      style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 10.0,
+                          fontStyle: FontStyle.italic),
+                    ),
+                    margin: EdgeInsets.only(left: 50.0, top: 5.0, bottom: 5.0),
+                  )
+                : Container()
           ],
           crossAxisAlignment: CrossAxisAlignment.start,
         ),
@@ -643,11 +717,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: ListView(
                     children: <Widget>[
                       ModalTile(
-                          title: "Media",
-                          subtitle: "Share Photos and Video",
-                          icon: Icons.image,
+                          title: "Video",
+                          subtitle: "Share Videos",
+                          icon: Icons.video_library,
                           onTap: () {
-                            getImageGallery();
+                            getVideoGallery();
                             Navigator.pop(context);
                           }),
                       ModalTile(
@@ -823,6 +897,19 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  Future getVideoGallery() async {
+    ImagePicker imagePicker = ImagePicker();
+    PickedFile pickedFile;
+
+    pickedFile = await imagePicker.getVideo(
+        source: ImageSource.gallery, maxDuration: Duration(minutes: 3));
+    videoFile = File(pickedFile.path);
+
+    if (videoFile != null) {
+      uploadVideo();
+    }
+  }
+
   Future getImageCamera() async {
     ImagePicker imagePicker = ImagePicker();
     PickedFile pickedFile;
@@ -845,6 +932,23 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         ChatMethods()
             .setImageMsg(imageUrl, widget.receiver.uid, _currentUserId);
+        // onSendMessage(imageUrl, 1);
+      });
+    }, onError: (err) {
+      print('error');
+    });
+  }
+
+  Future uploadVideo() async {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
+    StorageUploadTask uploadTask = reference.putFile(videoFile);
+    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
+    storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
+      videoUrl = downloadUrl;
+      setState(() {
+        ChatMethods()
+            .setVideoMsg(videoUrl, widget.receiver.uid, _currentUserId);
         // onSendMessage(imageUrl, 1);
       });
     }, onError: (err) {

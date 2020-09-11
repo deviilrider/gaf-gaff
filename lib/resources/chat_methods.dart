@@ -1,10 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gafgaff/constants/strings.dart';
 import 'package:gafgaff/models/contact.dart';
 import 'package:gafgaff/models/fcm.dart';
 import 'package:gafgaff/models/message.dart';
+import 'package:gafgaff/widgets/message_search.dart';
 import 'package:meta/meta.dart';
+
+import 'auth_methods.dart';
 
 class ChatMethods {
   static final Firestore _firestore = Firestore.instance;
@@ -87,6 +91,55 @@ class ChatMethods {
     return setRead;
   }
 
+  Future<void> markMessageAsUnread({String senderId, String receiverId}) async {
+    var setUnread = await _messageCollection
+        .document(senderId)
+        .collection(receiverId)
+        .getDocuments()
+        .then((snapshot) {
+      Message message = Message.fromMap(snapshot.documents.last.data);
+      _messageCollection
+          .document(senderId)
+          .collection(receiverId)
+          .where("timestamp", isEqualTo: message.timestamp)
+          .getDocuments()
+          .then((ss) {
+        for (DocumentSnapshot ds in ss.documents) {
+          ds.reference.updateData({"status": 'unread'});
+        }
+      });
+    });
+    return setUnread;
+  }
+
+  //search user
+  searchMessage(BuildContext context, String receiverID) async {
+    AuthMethods().getCurrentUser().then((FirebaseUser user) {
+      fetchAllMessages(user, receiverID).then((List<Message> messageList) {
+        showSearch(
+            context: context,
+            delegate: MessageSearch(messageList: messageList));
+      });
+    });
+  }
+
+  Future<List<Message>> fetchAllMessages(
+      FirebaseUser currentUser, String receiverID) async {
+    List<Message> messageList = List<Message>();
+
+    QuerySnapshot querySnapshot = await Firestore.instance
+        .collection('messages')
+        .document(currentUser.uid)
+        .collection(receiverID)
+        .getDocuments();
+    for (var i = 0; i < querySnapshot.documents.length; i++) {
+      if (querySnapshot.documents[i].documentID != currentUser.uid) {
+        messageList.add(Message.fromMap(querySnapshot.documents[i].data));
+      }
+    }
+    return messageList;
+  }
+
   Future fetchUserFcmToken(String ownerUid) async {
     DocumentSnapshot snapshot =
         await Firestore.instance.collection("users").document(ownerUid).get();
@@ -161,6 +214,33 @@ class ChatMethods {
         status: "unread",
         timestamp: Timestamp.now(),
         type: 'image');
+
+    // create imagemap
+    var map = message.toImageMap();
+
+    // var map = Map<String, dynamic>();
+    await _messageCollection
+        .document(message.senderId)
+        .collection(message.receiverId)
+        .add(map);
+
+    _messageCollection
+        .document(message.receiverId)
+        .collection(message.senderId)
+        .add(map);
+  }
+
+  void setVideoMsg(String url, String receiverId, String senderId) async {
+    Message message;
+
+    message = Message.imageMessage(
+        message: "Video message.",
+        receiverId: receiverId,
+        senderId: senderId,
+        photoUrl: url,
+        status: "unread",
+        timestamp: Timestamp.now(),
+        type: 'video');
 
     // create imagemap
     var map = message.toImageMap();
