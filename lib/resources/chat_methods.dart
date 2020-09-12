@@ -5,6 +5,7 @@ import 'package:gafgaff/constants/strings.dart';
 import 'package:gafgaff/models/contact.dart';
 import 'package:gafgaff/models/fcm.dart';
 import 'package:gafgaff/models/message.dart';
+import 'package:gafgaff/models/user.dart';
 import 'package:gafgaff/widgets/message_search.dart';
 import 'package:meta/meta.dart';
 
@@ -74,6 +75,38 @@ class ChatMethods {
         .collection(CONTACTS_COLLECTION)
         .document(receiverId)
         .delete();
+
+    return delete;
+  }
+
+  Future<void> deleteSelectedMessage(
+      String uid, String receiverId, String docId) async {
+    print(docId);
+    await _messageCollection
+        .document(uid)
+        .collection(receiverId)
+        .document(docId)
+        .delete();
+
+    return _messageCollection
+        .document(uid)
+        .collection(receiverId)
+        .document(docId)
+        .delete();
+  }
+
+  Future<void> deleteSelectMessageforReceiver(
+      String uid, String receiverId, String message) async {
+    var delete = await _messageCollection
+        .document(receiverId)
+        .collection(uid)
+        .where("message", isEqualTo: message)
+        .getDocuments()
+        .then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.documents) {
+        ds.reference.delete();
+      }
+    });
 
     return delete;
   }
@@ -255,6 +288,33 @@ class ChatMethods {
         .document(message.receiverId)
         .collection(message.senderId)
         .add(map);
+  }
+
+  Future<void> lockConversation(
+      User currentUser, String lockCode, String receiverId) async {
+    // Contact lockConv = Contact(isLocked: true, lockCode: lockCode);
+
+    // var lock = lockConv.toMap(lockConv);
+
+    var lockData =
+        await getContactsDocument(of: currentUser.uid, forContact: receiverId)
+            .updateData({"isLocked": true, "lockCode": lockCode});
+
+    return lockData;
+  }
+
+  Future<void> unlockConversation(User currentUser, String receiverId) async {
+    // Contact lockConv = Contact(isLocked: true, lockCode: lockCode);
+
+    // var lock = lockConv.toMap(lockConv);
+
+    var lockData =
+        await getContactsDocument(of: currentUser.uid, forContact: receiverId)
+            .updateData({
+      "isLocked": false,
+    });
+
+    return lockData;
   }
 
   Stream<QuerySnapshot> fetchContacts({String userId}) => _userCollection

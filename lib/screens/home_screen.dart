@@ -7,7 +7,6 @@ import 'package:gafgaff/models/fcm.dart';
 import 'package:gafgaff/models/user.dart';
 import 'package:gafgaff/screens/Profile/profileview.dart';
 import 'package:gafgaff/screens/Profile/publicProfileView.dart';
-import 'package:gafgaff/screens/chatscreens/chat_screen.dart';
 import 'package:gafgaff/screens/pageviews/groups/group_list_view.dart';
 import 'package:provider/provider.dart';
 import 'package:gafgaff/enum/user_state.dart';
@@ -17,6 +16,8 @@ import 'package:gafgaff/resources/local_db/repository/log_repository.dart';
 import 'package:gafgaff/screens/callscreens/pickup/pickup_layout.dart';
 import 'package:gafgaff/screens/pageviews/chats/chat_list_screen.dart';
 import 'package:gafgaff/screens/pageviews/logs/log_screen.dart';
+
+import 'chatscreens/check_unlock.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -87,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           User user = await _authMethods.getUserDetailsById(senderId);
           //redirecting
           Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => ChatScreen(
+              builder: (context) => CheckLockMessage(
                     receiver: user,
                   )));
         }
@@ -98,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           User user = await _authMethods.getUserDetailsById(senderId);
           //redirecting
           Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => ChatScreen(
+              builder: (context) => CheckLockMessage(
                     receiver: user,
                   )));
         }
@@ -135,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           User user = await _authMethods.getUserDetailsById(senderId);
           //redirecting
           Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => ChatScreen(
+              builder: (context) => CheckLockMessage(
                     receiver: user,
                   )));
         }
@@ -146,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           User user = await _authMethods.getUserDetailsById(senderId);
           //redirecting
           Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => ChatScreen(
+              builder: (context) => CheckLockMessage(
                     receiver: user,
                   )));
         }

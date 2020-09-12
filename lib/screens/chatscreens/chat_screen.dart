@@ -343,6 +343,18 @@ class _ChatScreenState extends State<ChatScreen> {
       // Right (my message)
       return Row(
         children: <Widget>[
+          Center(
+            child: GestureDetector(
+                onTap: () => showlongPressDialog(context, _message.receiverId,
+                    document.reference.documentID, _message.message, true),
+                child: Icon(
+                  Icons.more_horiz,
+                  size: 14,
+                )),
+          ),
+          SizedBox(
+            width: 5,
+          ),
           _message.type == 'text'
               // Text
               ? Container(
@@ -619,6 +631,22 @@ class _ChatScreenState extends State<ChatScreen> {
                                         : 10.0,
                                     right: 10.0),
                               ),
+                SizedBox(
+                  width: 5,
+                ),
+                Center(
+                  child: GestureDetector(
+                      onTap: () => showlongPressDialog(
+                          context,
+                          _message.senderId,
+                          document.reference.documentID,
+                          _message.message,
+                          false),
+                      child: Icon(
+                        Icons.more_horiz,
+                        size: 14,
+                      )),
+                ),
               ],
             ),
 
@@ -663,6 +691,99 @@ class _ChatScreenState extends State<ChatScreen> {
     } else {
       return false;
     }
+  }
+
+  //showing long press items
+  showlongPressDialog(BuildContext context, String receiverId, String docId,
+      String message, bool mine) async {
+    final UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: false);
+    var uid = mine ? userProvider.getUser.uid : receiverId;
+    var recId = mine ? receiverId : userProvider.getUser.uid;
+
+    return showModalBottomSheet(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0)),
+      ),
+      context: context,
+      builder: (BuildContext context) {
+        return ListView(
+          physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          children: [
+            // * DELETING message
+            Container(
+              padding: EdgeInsets.all(2),
+              child: InkWell(
+                onTap: () {
+                  ChatMethods().deleteSelectedMessage(uid, recId, docId);
+
+                  mine
+                      ? ChatMethods()
+                          .deleteSelectMessageforReceiver(uid, recId, message)
+                      : {};
+
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  margin: EdgeInsets.all(0.0),
+                  child: ListTile(
+                    title: Text(
+                      mine ? "Unsend Message" : "Remove message",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                    leading: Container(
+                      width: 35,
+                      height: 35,
+                      decoration: BoxDecoration(shape: BoxShape.circle),
+                      child: Center(
+                        child: Icon(
+                          Icons.delete,
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // * forward CONVERSATION
+            Container(
+              margin: EdgeInsets.all(0),
+              child: InkWell(
+                onTap: () async {},
+                child: Container(
+                  padding: EdgeInsets.all(2),
+                  margin: EdgeInsets.all(0.0),
+                  child: ListTile(
+                    title: Text(
+                      "Forward",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                    leading: Container(
+                      width: 35,
+                      height: 35,
+                      decoration: BoxDecoration(shape: BoxShape.circle),
+                      child: Center(
+                        child: Icon(
+                          Icons.ios_share,
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   openlinkfromMessage(LinkableElement link) async {

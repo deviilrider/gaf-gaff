@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gafgaff/models/user.dart';
 import 'package:gafgaff/screens/chatscreens/chat_screen.dart';
+import 'package:gafgaff/screens/chatscreens/check_unlock.dart';
 import 'package:gafgaff/screens/chatscreens/widgets/cached_image.dart';
 import 'package:gafgaff/utils/universal_variables.dart';
 
@@ -55,9 +56,10 @@ class UserSearch extends SearchDelegate<String> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => ChatScreen(
-                            receiver: suggestionsList[index],
-                          )));
+                    builder: (context) => CheckLockMessage(
+                      receiver: suggestionsList[index],
+                    ),
+                  ));
             },
             leading: CachedImage(
               suggestionsList[index].profilePhoto,
